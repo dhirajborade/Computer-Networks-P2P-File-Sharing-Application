@@ -1,0 +1,21 @@
+[11/28/2017 04:39:20.298]: Peer 1001 is connected from Peer 1002
+[11/28/2017 04:39:20.807]: Peer 1001 received the 'interested' message from 1002
+[11/28/2017 04:39:21.341]: Peer 1001 has the preferred neighbors 1002.
+[11/28/2017 04:39:21.435]: Peer 1001 received the 'have' message from 1002 for the piece 1.
+[11/28/2017 04:39:21.479]: Peer 1001 received the 'have' message from 1002 for the piece 13.
+[11/28/2017 04:39:21.494]: Peer 1001 received the 'have' message from 1002 for the piece 5.
+[11/28/2017 04:39:21.518]: Peer 1001 received the 'have' message from 1002 for the piece 0.
+[11/28/2017 04:39:21.541]: Peer 1001 received the 'have' message from 1002 for the piece 9.
+[11/28/2017 04:39:21.561]: Peer 1001 received the 'have' message from 1002 for the piece 4.
+[11/28/2017 04:39:21.653]: Peer 1001 received the 'have' message from 1002 for the piece 8.
+[11/28/2017 04:39:21.671]: Peer 1001 received the 'have' message from 1002 for the piece 3.
+[11/28/2017 04:39:21.686]: Peer 1001 received the 'have' message from 1002 for the piece 6.
+[11/28/2017 04:39:21.702]: Peer 1001 received the 'have' message from 1002 for the piece 12.
+[11/28/2017 04:39:21.718]: Peer 1001 received the 'have' message from 1002 for the piece 7.
+[11/28/2017 04:39:21.734]: Peer 1001 received the 'have' message from 1002 for the piece 11.
+[11/28/2017 04:39:21.752]: Peer 1001 received the 'have' message from 1002 for the piece 14.
+[11/28/2017 04:39:21.826]: Peer 1001 received the 'have' message from 1002 for the piece 16.
+[11/28/2017 04:39:21.848]: Peer 1001 received the 'have' message from 1002 for the piece 2.
+[11/28/2017 04:39:21.868]: Peer 1001 received the 'have' message from 1002 for the piece 10.
+[11/28/2017 04:39:21.872]: Peer 1001 received the 'not interested' message from 1002
+[11/28/2017 04:39:21.889]: Peer 1001 received the 'have' message from 1002 for the piece 15.
