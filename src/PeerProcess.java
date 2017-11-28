@@ -14,6 +14,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -66,7 +67,7 @@ public class PeerProcess {
 	Future<?> logManagerTask;
 	Future<?> messageQueueTask;
 	public volatile boolean exit = false;
-	static int currPeerNo = 0;
+	static int currentPeerNo = 0;
 
 	PeerProcess() {
 		sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -108,6 +109,72 @@ public class PeerProcess {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+	}
+
+	public void initializePeerList(PeerProcess p, String peerID) throws IOException {
+		BufferedReader pireader = new BufferedReader(
+				new FileReader(System.getProperty("user.dir") + "/" + "PeerInfo.cfg"));
+		String line, tokens[];
+		try {
+			while ((line = pireader.readLine()) != null) {
+				tokens = line.split(" ");
+				lastPeerID = Integer.parseInt(tokens[0]);
+				if (!tokens[0].equals(peerID)) {
+					System.out.println("t:" + tokens[0] + " " + tokens[1] + " " + tokens[2]);
+					Peer peer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));
+					if (Integer.parseInt(tokens[3]) == 0) {
+						peer.setHandShakeDone(false);
+					}
+					p.peerInfoVector.add(peer);
+				} else {
+					currentPeer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));
+					currentPeerNo = p.peerInfoVector.size();
+					if (Integer.parseInt(tokens[3]) == 1) {
+						p.isFilePresent = true;
+					}
+				}
+			}
+		} finally {
+			pireader.close();
+		}
+	}
+
+	public void initializeFileManager(PeerProcess p, String peerID) throws IOException {
+		int bfsize = (int) Math.ceil((double) (p.noOfPieces / 8.0));
+		Iterator<Peer> itr = PeerInfoConfigParser.getPeerInfoVector().iterator();
+		while (itr.hasNext()) {
+			Peer tempPeer = (Peer) itr.next();
+			lastPeerID = tempPeer.getPeerID();
+			if (tempPeer.getPeerID() != Integer.parseInt(peerID)) {
+				p.peerInfoVector.remove(tempPeer);
+				System.out.println("t:" + tempPeer.getPeerID());
+				Peer peer = tempPeer;
+				peer.setBitfield(new byte[bfsize]);
+				Arrays.fill(peer.getBitfield(), (byte) 0);
+				p.peerInfoVector.add(peer);
+			} else {
+				currentPeer = tempPeer;
+				if (p.isFilePresent) {
+					p.copyFileUsingStream(new String(System.getProperty("user.dir") + "/" + p.FileName),
+							new String(System.getProperty("user.dir") + "/peer_" + peerID + "/" + p.FileName));
+					p.FileName = System.getProperty("user.dir") + "/peer_" + currentPeer.getPeerID() + "/"
+							+ p.FileName;
+					System.out.println(p.FileName);
+					p.fileComplete = true;
+					currentPeer.setBitfield(new byte[bfsize]);
+					for (int i = 0; i < p.noOfPieces; i++) {
+						PeerProcess.setBit(currentPeer.getBitfield(), i);
+					}
+				} else {
+					p.FileName = System.getProperty("user.dir") + "/peer_" + currentPeer.getPeerID() + "/"
+							+ p.FileName;
+					new File(p.FileName).delete();
+					new File(p.FileName).createNewFile();
+					currentPeer.setBitfield(new byte[bfsize]);
+					Arrays.fill(currentPeer.getBitfield(), (byte) 0);
+				}
+			}
 		}
 	}
 
@@ -197,7 +264,7 @@ public class PeerProcess {
 	}
 
 	private void establishConnection(PeerProcess p) {
-		for (int i = 0; currPeerNo != 0 && i <= currPeerNo - 1; i++) {
+		for (int i = 0; currentPeerNo != 0 && i <= currentPeerNo - 1; i++) {
 			p.connectToPreviousPeer(p.peerInfoVector.get(i));
 		}
 	}
@@ -231,14 +298,14 @@ public class PeerProcess {
 			peerProcess.initializePeerParams(peerProcess);
 
 			/*** Reads peerInfo.cfg file and initializes peerList ***/
-			peerInfo.initializePeerList(peerProcess, args[0]);
+			peerProcess.initializePeerList(peerProcess, args[0]);
 
 			/*** Initializes File Manager ***/
-			peerInfo.initializeFileManager(peerProcess, args[0]);
+			peerProcess.initializeFileManager(peerProcess, args[0]);
 
-			lastPeerID = peerInfo.getLastPeerID();
-			currentPeer = peerInfo.getCurrentPeer();
-			currPeerNo = peerInfo.getCurrentPeerNo();
+//			lastPeerID = peerInfo.getLastPeerID();
+//			currentPeer = peerInfo.getCurrentPeer();
+//			currentPeerNo = peerInfo.getCurrentPeerNo();
 
 			peerProcess.establishConnection(peerProcess);
 
