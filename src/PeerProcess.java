@@ -14,7 +14,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -93,73 +92,6 @@ public class PeerProcess {
 				dstStream.close();
 			} catch (Exception e) {
 			}
-		}
-	}
-
-	private void initializeFileManager(PeerProcess p, String peerID) throws IOException {
-		int bfsize = (int) Math.ceil((double) (noOfPieces / 8.0));
-		Iterator<Peer> itr = PeerInfoConfigParser.getPeerInfoVector().iterator();
-		while (itr.hasNext()) {
-			Peer tempPeer = (Peer) itr.next();
-			lastPeerID = tempPeer.getPeerID();
-			if (tempPeer.getPeerID() != Integer.parseInt(peerID)) {
-				p.peerInfoVector.remove(tempPeer);
-				System.out.println("t:" + tempPeer.getPeerID());
-				Peer peer = tempPeer;
-				peer.setBitfield(new byte[bfsize]);
-				Arrays.fill(peer.getBitfield(), (byte) 0);
-				p.peerInfoVector.add(peer);
-			} else {
-				currentPeer = tempPeer;
-				if (p.isFilePresent) {
-					p.copyFileUsingStream(new String(System.getProperty("user.dir") + "/" + this.FileName),
-							new String(System.getProperty("user.dir") + "/peer_" + peerID + "/" + this.FileName));
-					FileName = System.getProperty("user.dir") + "/peer_" + currentPeer.getPeerID() + "/"
-							+ this.FileName;
-					System.out.println(FileName);
-					fileComplete = true;
-					currentPeer.setBitfield(new byte[bfsize]);
-					for (int i = 0; i < noOfPieces; i++) {
-						setBit(currentPeer.getBitfield(), i);
-					}
-				} else {
-					FileName = System.getProperty("user.dir") + "/peer_" + currentPeer.getPeerID() + "/"
-							+ this.FileName;
-					new File(FileName).delete();
-					new File(FileName).createNewFile();
-					currentPeer.setBitfield(new byte[bfsize]);
-					Arrays.fill(currentPeer.getBitfield(), (byte) 0);
-				}
-			}
-
-		}
-	}
-
-	private void initializePeerList(PeerProcess p, String peerID) throws IOException {
-		BufferedReader pireader = new BufferedReader(
-				new FileReader(System.getProperty("user.dir") + "/" + "PeerInfo.cfg"));
-		String line, tokens[];
-		try {
-			while ((line = pireader.readLine()) != null) {
-				tokens = line.split(" ");
-				lastPeerID = Integer.parseInt(tokens[0]);
-				if (!tokens[0].equals(peerID)) {
-					System.out.println("t:" + tokens[0] + " " + tokens[1] + " " + tokens[2]);
-					Peer peer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));
-					if (Integer.parseInt(tokens[3]) == 0) {
-						peer.setHandShakeDone(false);
-					}
-					p.peerInfoVector.add(peer);
-				} else {
-					currentPeer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));
-					currPeerNo = p.peerInfoVector.size();
-					if (Integer.parseInt(tokens[3]) == 1) {
-						p.isFilePresent = true;
-					}
-				}
-			}
-		} finally {
-			pireader.close();
 		}
 	}
 
@@ -299,10 +231,14 @@ public class PeerProcess {
 			peerProcess.initializePeerParams(peerProcess);
 
 			/*** Reads peerInfo.cfg file and initializes peerList ***/
-			peerProcess.initializePeerList(peerProcess, args[0]);
+			peerInfo.initializePeerList(peerProcess, args[0]);
 
 			/*** Initializes File Manager ***/
-			peerProcess.initializeFileManager(peerProcess, args[0]);
+			peerInfo.initializeFileManager(peerProcess, args[0]);
+
+			peerProcess.lastPeerID = peerInfo.getLastPeerID();
+			PeerProcess.currentPeer = peerInfo.getCurrentPeer();
+			PeerProcess.currPeerNo = peerInfo.getCurrentPeerNo();
 
 			peerProcess.establishConnection(peerProcess);
 
