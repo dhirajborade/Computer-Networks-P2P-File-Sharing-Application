@@ -211,6 +211,12 @@ public class PeerInfoConfigParser {
 		}
 	}
 
+	public void establishConnection(PeerProcess p) {
+		for (int i = 0; currentPeerNo != 0 && i <= currentPeerNo - 1; i++) {
+			p.connectToPreviousPeer(p.peerInfoVector.get(i));
+		}
+	}
+
 	/**
 	 * @param args
 	 */

@@ -9,6 +9,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.text.ParseException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * @author dhirajborade
@@ -23,6 +26,9 @@ public class CommonPropertiesParser {
 	private static String fileName;
 	private static int fileSize;
 	private static int pieceSize;
+
+
+	private static int[][] pieceMatrix;
 
 	/**
 	 *
@@ -128,7 +134,7 @@ public class CommonPropertiesParser {
 		return CONFIG_FILE_NAME;
 	}
 
-	public void parseCommonConfigFile(Reader reader) throws FileNotFoundException, IOException, ParseException {
+	public void initializePeerParams(PeerProcess p) throws IOException {
 		try {
 			BufferedReader in = new BufferedReader(new FileReader("Common.cfg"));
 			String line;
@@ -160,11 +166,35 @@ public class CommonPropertiesParser {
 				}
 			}
 			in.close();
+
+			p.noOfPieces = (fileSize / pieceSize) + 1;
+			pieceMatrix = new int[p.noOfPieces][2];
+			int startPos = 0;
+			int psize = pieceSize;
+			int cumpsize = pieceSize;
+			for (int i = 0; i < p.noOfPieces; i++) {
+				pieceMatrix[i][0] = startPos;
+				pieceMatrix[i][1] = psize;
+
+				startPos += psize;
+
+				if (!(fileSize - cumpsize > pieceSize))
+					psize = fileSize - cumpsize;
+
+				cumpsize += psize;
+
+			}
+			p.sentRequestMessageByPiece = new boolean[p.noOfPeers][p.noOfPieces];
+			p.chokedfrom = new HashSet<>();
+			p.peerSocketMap = new HashMap<>();
+			p.bqm = new LinkedBlockingQueue<MessageWriter>();
+			p.bql = new LinkedBlockingQueue<String>();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
 	}
 
 	/**

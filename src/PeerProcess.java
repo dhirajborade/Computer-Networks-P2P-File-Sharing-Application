@@ -1,4 +1,3 @@
-import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -14,7 +13,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -34,12 +32,12 @@ public class PeerProcess {
 
 	List<Peer> peerInfoVector;
 	static Peer currentPeer;
-	int NumberOfPreferredNeighbors;
-	int UnchokingInterval;
-	int OptimisticUnchokingInterval;
-	String FileName;
-	int FileSize;
-	int PieceSize;
+	// int NumberOfPreferredNeighbors;
+	// int UnchokingInterval;
+	// int OptimisticUnchokingInterval;
+	// String FileName;
+	// int FileSize;
+	// int PieceSize;
 	int noOfPieces;
 	int noOfPeerHS;
 	int noOfPeers;
@@ -112,161 +110,27 @@ public class PeerProcess {
 		}
 	}
 
-	public void initializePeerList(PeerProcess p, String peerID) throws IOException {
-		BufferedReader pireader = new BufferedReader(
-				new FileReader(System.getProperty("user.dir") + "/" + "PeerInfo.cfg"));
-		String line, tokens[];
-		try {
-			while ((line = pireader.readLine()) != null) {
-				tokens = line.split(" ");
-				lastPeerID = Integer.parseInt(tokens[0]);
-				if (!tokens[0].equals(peerID)) {
-					System.out.println("t:" + tokens[0] + " " + tokens[1] + " " + tokens[2]);
-					Peer peer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));
-					if (Integer.parseInt(tokens[3]) == 0) {
-						peer.setHandShakeDone(false);
-					}
-					p.peerInfoVector.add(peer);
-				} else {
-					currentPeer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));
-					currentPeerNo = p.peerInfoVector.size();
-					if (Integer.parseInt(tokens[3]) == 1) {
-						p.isFilePresent = true;
-					}
-				}
-			}
-		} finally {
-			pireader.close();
-		}
-	}
-
-	public void initializeFileManager(PeerProcess p, String peerID) throws IOException {
-		int bfsize = (int) Math.ceil((double) (p.noOfPieces / 8.0));
-		Iterator<Peer> itr = PeerInfoConfigParser.getPeerInfoVector().iterator();
-		while (itr.hasNext()) {
-			Peer tempPeer = (Peer) itr.next();
-			lastPeerID = tempPeer.getPeerID();
-			if (tempPeer.getPeerID() != Integer.parseInt(peerID)) {
-				p.peerInfoVector.remove(tempPeer);
-				System.out.println("t:" + tempPeer.getPeerID());
-				Peer peer = tempPeer;
-				peer.setBitfield(new byte[bfsize]);
-				Arrays.fill(peer.getBitfield(), (byte) 0);
-				p.peerInfoVector.add(peer);
-			} else {
-				currentPeer = tempPeer;
-				if (p.isFilePresent) {
-					p.copyFileUsingStream(new String(System.getProperty("user.dir") + "/" + p.FileName),
-							new String(System.getProperty("user.dir") + "/peer_" + peerID + "/" + p.FileName));
-					p.FileName = System.getProperty("user.dir") + "/peer_" + currentPeer.getPeerID() + "/"
-							+ p.FileName;
-					System.out.println(p.FileName);
-					p.fileComplete = true;
-					currentPeer.setBitfield(new byte[bfsize]);
-					for (int i = 0; i < p.noOfPieces; i++) {
-						PeerProcess.setBit(currentPeer.getBitfield(), i);
-					}
-				} else {
-					p.FileName = System.getProperty("user.dir") + "/peer_" + currentPeer.getPeerID() + "/"
-							+ p.FileName;
-					new File(p.FileName).delete();
-					new File(p.FileName).createNewFile();
-					currentPeer.setBitfield(new byte[bfsize]);
-					Arrays.fill(currentPeer.getBitfield(), (byte) 0);
-				}
-			}
-		}
-	}
-
 	private void initializePeerParams(PeerProcess p) throws IOException {
-		BufferedReader commonreader = new BufferedReader(new FileReader("common.cfg"));
-		String line, tokens[];
-		int lineno = 1;
 
-		try {
-
-			while ((line = commonreader.readLine()) != null) {
-				tokens = line.split(" ");
-				switch (lineno) {
-				case 1: {
-					p.NumberOfPreferredNeighbors = Integer.parseInt(tokens[1]);
-				}
-					break;
-
-				case 2: {
-					p.UnchokingInterval = Integer.parseInt(tokens[1]);
-				}
-					break;
-
-				case 3: {
-					p.OptimisticUnchokingInterval = Integer.parseInt(tokens[1]);
-				}
-					break;
-
-				case 4: {
-					p.FileName = tokens[1];
-				}
-					break;
-
-				case 5: {
-					p.FileSize = Integer.parseInt(tokens[1]);
-				}
-					break;
-
-				case 6: {
-					p.PieceSize = Integer.parseInt(tokens[1]);
-				}
-					break;
-
-				default:
-				}
-
-				lineno++;
+		noOfPieces = (CommonPropertiesParser.getFileSize() / CommonPropertiesParser.getPieceSize()) + 1;
+		pieceMatrix = new int[noOfPieces][2];
+		int startPos = 0;
+		int psize = CommonPropertiesParser.getPieceSize();
+		int cumpsize = CommonPropertiesParser.getPieceSize();
+		for (int i = 0; i < noOfPieces; i++) {
+			pieceMatrix[i][0] = startPos;
+			pieceMatrix[i][1] = psize;
+			startPos += psize;
+			if (!(CommonPropertiesParser.getFileSize() - cumpsize > CommonPropertiesParser.getPieceSize())) {
+				psize = CommonPropertiesParser.getFileSize() - cumpsize;
 			}
-			p.noOfPieces = (p.FileSize / p.PieceSize) + 1;
-			pieceMatrix = new int[noOfPieces][2];
-			int startPos = 0;
-			int psize = p.PieceSize;
-			int cumpsize = p.PieceSize;
-			for (int i = 0; i < noOfPieces; i++) {
-				pieceMatrix[i][0] = startPos;
-				pieceMatrix[i][1] = psize;
-
-				startPos += psize;
-
-				if (!(p.FileSize - cumpsize > p.PieceSize))
-					psize = p.FileSize - cumpsize;
-
-				cumpsize += psize;
-
-			}
-			sentRequestMessageByPiece = new boolean[this.noOfPeers][this.noOfPieces];
-			PeerProcess.this.chokedfrom = new HashSet<>();
-			PeerProcess.this.peerSocketMap = new HashMap<>();
-			PeerProcess.this.bqm = new LinkedBlockingQueue<MessageWriter>();
-			PeerProcess.this.bql = new LinkedBlockingQueue<String>();
-			PeerProcess.this.unchokingIntervalWisePeerDownloadingRate = new PriorityQueue<>(
-					new Comparator<DownloadingRate>() {
-						/*
-						 * (non-Javadoc)
-						 *
-						 * @see java.util.Comparator#compare(java. lang. Object, java.lang.Object)
-						 */
-						@Override
-						public int compare(DownloadingRate o1, DownloadingRate o2) {
-							return o1.downloadingRate > o2.downloadingRate ? 1 : -1;
-						}
-					});
-		} finally {
-			commonreader.close();
+			cumpsize += psize;
 		}
-
-	}
-
-	private void establishConnection(PeerProcess p) {
-		for (int i = 0; currentPeerNo != 0 && i <= currentPeerNo - 1; i++) {
-			p.connectToPreviousPeer(p.peerInfoVector.get(i));
-		}
+		sentRequestMessageByPiece = new boolean[this.noOfPeers][this.noOfPieces];
+		chokedfrom = new HashSet<>();
+		peerSocketMap = new HashMap<>();
+		bqm = new LinkedBlockingQueue<MessageWriter>();
+		bql = new LinkedBlockingQueue<String>();
 	}
 
 	public static void main(String[] args) {
@@ -297,6 +161,19 @@ public class PeerProcess {
 			 ***/
 			peerProcess.initializePeerParams(peerProcess);
 
+			peerProcess.unchokingIntervalWisePeerDownloadingRate = new PriorityQueue<>(
+					new Comparator<DownloadingRate>() {
+						/*
+						 * (non-Javadoc)
+						 *
+						 * @see java.util.Comparator#compare(java. lang. Object, java.lang.Object)
+						 */
+						@Override
+						public int compare(DownloadingRate o1, DownloadingRate o2) {
+							return o1.downloadingRate > o2.downloadingRate ? 1 : -1;
+						}
+					});
+
 			/*** Reads peerInfo.cfg file and initializes peerList ***/
 			peerInfo.initializePeerList(peerProcess, args[0]);
 
@@ -307,7 +184,7 @@ public class PeerProcess {
 			currentPeer = peerInfo.getCurrentPeer();
 			currentPeerNo = peerInfo.getCurrentPeerNo();
 
-			peerProcess.establishConnection(peerProcess);
+			peerInfo.establishConnection(peerProcess);
 
 			peerProcess.createServerSocket(PeerProcess.currentPeer.getPeerPortNumber());
 
@@ -661,7 +538,7 @@ public class PeerProcess {
 		 */
 		private void updatePeerDownloadingRate() {
 			DownloadingRate dr = new DownloadingRate(peer,
-					(double) (PeerProcess.this.PieceSize / ((this.endtime - this.starttime) + 1)));
+					(double) (CommonPropertiesParser.getPieceSize() / ((this.endtime - this.starttime) + 1)));
 
 			if (!unchokingIntervalWisePeerDownloadingRate.contains(dr))
 				unchokingIntervalWisePeerDownloadingRate.add(dr);
@@ -810,13 +687,14 @@ public class PeerProcess {
 			 */
 			int index = ByteBuffer.wrap(message.payload).getInt();
 			if (getBit(PeerProcess.currentPeer.getBitfield(), index) == 1) {
-				byte[] piece = new byte[PeerProcess.this.PieceSize + 4];
+				byte[] piece = new byte[CommonPropertiesParser.getPieceSize() + 4];
 				System.arraycopy(message.payload, 0, piece, 0, 4);
-				RandomAccessFile rafr = new RandomAccessFile(new File(FileName), "r");
+				RandomAccessFile rafr = new RandomAccessFile(new File(CommonPropertiesParser.getFileName()), "r");
 				rafr.seek(PeerProcess.this.pieceMatrix[index][0]);
 				rafr.readFully(piece, 4, PeerProcess.this.pieceMatrix[index][1]);
 				rafr.close();
-				Message mpiece = new Message(PeerProcess.this.PieceSize + 5, Byte.valueOf(Integer.toString(7)), piece);
+				Message mpiece = new Message(CommonPropertiesParser.getPieceSize() + 5,
+						Byte.valueOf(Integer.toString(7)), piece);
 				try {
 					PeerProcess.this.bqm.put(new MessageWriter(mpiece, new DataOutputStream(socket.getOutputStream())));
 				} catch (InterruptedException e) {
@@ -838,7 +716,7 @@ public class PeerProcess {
 			int index = ByteBuffer.wrap(i).getInt();
 			byte[] piece = new byte[PeerProcess.this.pieceMatrix[index][1]];
 			System.arraycopy(payload, 4, piece, 0, PeerProcess.this.pieceMatrix[index][1]);
-			RandomAccessFile rafw = new RandomAccessFile(new File(FileName), "rw");
+			RandomAccessFile rafw = new RandomAccessFile(new File(CommonPropertiesParser.getFileName()), "rw");
 			rafw.seek(PeerProcess.this.pieceMatrix[index][0]);
 			rafw.write(piece, 0, PeerProcess.this.pieceMatrix[index][1]);
 			rafw.close();
