@@ -298,14 +298,14 @@ public class PeerProcess {
 			peerProcess.initializePeerParams(peerProcess);
 
 			/*** Reads peerInfo.cfg file and initializes peerList ***/
-			peerProcess.initializePeerList(peerProcess, args[0]);
+			peerInfo.initializePeerList(peerProcess, args[0]);
 
 			/*** Initializes File Manager ***/
-			peerProcess.initializeFileManager(peerProcess, args[0]);
+			peerInfo.initializeFileManager(peerProcess, args[0]);
 
-//			lastPeerID = peerInfo.getLastPeerID();
-//			currentPeer = peerInfo.getCurrentPeer();
-//			currentPeerNo = peerInfo.getCurrentPeerNo();
+			lastPeerID = peerInfo.getLastPeerID();
+			currentPeer = peerInfo.getCurrentPeer();
+			currentPeerNo = peerInfo.getCurrentPeerNo();
 
 			peerProcess.establishConnection(peerProcess);
 
