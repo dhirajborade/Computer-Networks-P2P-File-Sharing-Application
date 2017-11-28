@@ -55,7 +55,7 @@ public class PeerProcess {
 	Logger logger;
 	boolean[][] sentRequestMessageByPiece;
 	boolean fileComplete;
-	int lastPeerID;
+	static int lastPeerID;
 	BlockingQueue<MessageWriter> bqm;
 	BlockingQueue<String> bql;
 	HashMap<Peer, Socket> peerSocketMap;
@@ -236,9 +236,9 @@ public class PeerProcess {
 			/*** Initializes File Manager ***/
 			peerInfo.initializeFileManager(peerProcess, args[0]);
 
-			peerProcess.lastPeerID = peerInfo.getLastPeerID();
-			PeerProcess.currentPeer = peerInfo.getCurrentPeer();
-			PeerProcess.currPeerNo = peerInfo.getCurrentPeerNo();
+			lastPeerID = peerInfo.getLastPeerID();
+			currentPeer = peerInfo.getCurrentPeer();
+			currPeerNo = peerInfo.getCurrentPeerNo();
 
 			peerProcess.establishConnection(peerProcess);
 
