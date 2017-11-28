@@ -158,6 +158,8 @@ public class PeerProcess {
 						}
 					});
 
+			peerProcess.pieceMatrix = CommonPropertiesParser.getPieceMatrix();
+
 			/*** Reads peerInfo.cfg file and initializes peerList ***/
 			peerInfo.initializePeerList(peerProcess, args[0]);
 

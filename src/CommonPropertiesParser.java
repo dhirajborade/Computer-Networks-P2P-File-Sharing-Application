@@ -265,7 +265,7 @@ public class CommonPropertiesParser {
 		try {
 			String line;
 			while ((line = in.readLine()) != null) {
-				String[] configFile = line.split("");
+				String[] configFile = line.split(" ");
 				String propertyName = configFile[0];
 				String propertyValue = configFile[1];
 				switch (propertyName) {
