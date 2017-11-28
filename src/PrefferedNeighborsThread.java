@@ -20,7 +20,7 @@ public class PrefferedNeighborsThread implements Runnable {
 		while (!peerProces.exit) {
 			try {
 
-				Thread.sleep(peerProces.UnchokingInterval * 1000);
+				Thread.sleep(CommonPropertiesParser.getUnchokingInterval() * 1000);
 				if (peerProces.peerInfoVector.size() > 0) {
 					peerProces.NewPrefNeighbors = new HashSet<Peer>();
 					if (peerProces.unchokingIntervalWisePeerDownloadingRate.size() == 0) {
@@ -33,8 +33,8 @@ public class PrefferedNeighborsThread implements Runnable {
 						// thus select any random peers and add them to the
 						// preferred neighbors list
 						Random ran = new Random();
-						for (int i = 0; i < peerProces.peerInfoVector.size()
-								&& peerProces.NewPrefNeighbors.size() < peerProces.NumberOfPreferredNeighbors; i++) {
+						for (int i = 0; i < peerProces.peerInfoVector.size() && peerProces.NewPrefNeighbors
+								.size() < CommonPropertiesParser.getNumberOfPreferredNeighbors(); i++) {
 							Peer p = peerProces.peerInfoVector.get(ran.nextInt(peerProces.peerInfoVector.size()));
 							if (p.isInterestedInPieces()) {
 								peerProces.NewPrefNeighbors.add(p);
@@ -48,7 +48,7 @@ public class PrefferedNeighborsThread implements Runnable {
 						// the
 						// preferred neoighbors lists
 						Random ran = new Random();
-						for (int i = 0; i < peerProces.NumberOfPreferredNeighbors; i++) {
+						for (int i = 0; i < CommonPropertiesParser.getNumberOfPreferredNeighbors(); i++) {
 							if (!peerProces.unchokingIntervalWisePeerDownloadingRate.isEmpty()) {
 								peerProces.NewPrefNeighbors
 										.add(peerProces.unchokingIntervalWisePeerDownloadingRate.poll().p);
@@ -58,8 +58,8 @@ public class PrefferedNeighborsThread implements Runnable {
 						// than
 						// preffered neighbors size
 
-						for (int i = 0; i < peerProces.peerInfoVector.size()
-								&& peerProces.NewPrefNeighbors.size() < peerProces.NumberOfPreferredNeighbors; i++) {
+						for (int i = 0; i < peerProces.peerInfoVector.size() && peerProces.NewPrefNeighbors
+								.size() < CommonPropertiesParser.getNumberOfPreferredNeighbors(); i++) {
 							Peer p = peerProces.peerInfoVector.get(ran.nextInt(peerProces.peerInfoVector.size()));
 							if (p.isInterestedInPieces())
 								peerProces.NewPrefNeighbors.add(p);
@@ -96,8 +96,9 @@ public class PrefferedNeighborsThread implements Runnable {
 						for (Peer p : peerProces.PreferedNeighbours) {
 							peerIdList = p.getPeerID() + ",";
 						}
-						peerProces.bql.put("Peer " + peerProces.currentPeer.getPeerID() + " has the preferred neighbors "
-								+ peerIdList.substring(0, peerIdList.length() - 1) + ".");
+						peerProces.bql
+								.put("Peer " + PeerProcess.currentPeer.getPeerID() + " has the preferred neighbors "
+										+ peerIdList.substring(0, peerIdList.length() - 1) + ".");
 					}
 				}
 			} catch (InterruptedException e) {

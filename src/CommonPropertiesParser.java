@@ -1,17 +1,17 @@
+
 /**
  *
  */
-
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
-import java.text.ParseException;
+import java.net.Socket;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * @author dhirajborade
@@ -27,8 +27,14 @@ public class CommonPropertiesParser {
 	private static int fileSize;
 	private static int pieceSize;
 
-
 	private static int[][] pieceMatrix;
+	private static int numberOfPieces;
+	private static int totalPeers;
+	private static boolean[][] sentRequestMessageByPiece;
+	private static BlockingQueue<MessageWriter> bqm;
+	private static BlockingQueue<String> bql;
+	private static HashMap<Peer, Socket> peerSocketMap;
+	private static HashSet<Peer> chokedFrom;
 
 	/**
 	 *
@@ -134,9 +140,129 @@ public class CommonPropertiesParser {
 		return CONFIG_FILE_NAME;
 	}
 
-	public void initializePeerParams(PeerProcess p) throws IOException {
+	/**
+	 * @return the pieceMatrix
+	 */
+	public static int[][] getPieceMatrix() {
+		return pieceMatrix;
+	}
+
+	/**
+	 * @param pieceMatrix
+	 *            the pieceMatrix to set
+	 */
+	public static void setPieceMatrix(int[][] pieceMatrix) {
+		CommonPropertiesParser.pieceMatrix = pieceMatrix;
+	}
+
+	/**
+	 * @return the numberOfPieces
+	 */
+	public static int getNumberOfPieces() {
+		return numberOfPieces;
+	}
+
+	/**
+	 * @param numberOfPieces
+	 *            the numberOfPieces to set
+	 */
+	public static void setNumberOfPieces(int numberOfPieces) {
+		CommonPropertiesParser.numberOfPieces = numberOfPieces;
+	}
+
+	/**
+	 * @return the totalPeers
+	 */
+	public static int getTotalPeers() {
+		return totalPeers;
+	}
+
+	/**
+	 * @param totalPeers
+	 *            the totalPeers to set
+	 */
+	public static void setTotalPeers(int totalPeers) {
+		CommonPropertiesParser.totalPeers = totalPeers;
+	}
+
+	/**
+	 * @return the sentRequestMessageByPiece
+	 */
+	public static boolean[][] getSentRequestMessageByPiece() {
+		return sentRequestMessageByPiece;
+	}
+
+	/**
+	 * @param sentRequestMessageByPiece
+	 *            the sentRequestMessageByPiece to set
+	 */
+	public static void setSentRequestMessageByPiece(boolean[][] sentRequestMessageByPiece) {
+		CommonPropertiesParser.sentRequestMessageByPiece = sentRequestMessageByPiece;
+	}
+
+	/**
+	 * @return the bqm
+	 */
+	public static BlockingQueue<MessageWriter> getBqm() {
+		return bqm;
+	}
+
+	/**
+	 * @param bqm
+	 *            the bqm to set
+	 */
+	public static void setBqm(BlockingQueue<MessageWriter> bqm) {
+		CommonPropertiesParser.bqm = bqm;
+	}
+
+	/**
+	 * @return the bql
+	 */
+	public static BlockingQueue<String> getBql() {
+		return bql;
+	}
+
+	/**
+	 * @param bql
+	 *            the bql to set
+	 */
+	public static void setBql(BlockingQueue<String> bql) {
+		CommonPropertiesParser.bql = bql;
+	}
+
+	/**
+	 * @return the peerSocketMap
+	 */
+	public static HashMap<Peer, Socket> getPeerSocketMap() {
+		return peerSocketMap;
+	}
+
+	/**
+	 * @param peerSocketMap
+	 *            the peerSocketMap to set
+	 */
+	public static void setPeerSocketMap(HashMap<Peer, Socket> peerSocketMap) {
+		CommonPropertiesParser.peerSocketMap = peerSocketMap;
+	}
+
+	/**
+	 * @return the chokedFrom
+	 */
+	public static HashSet<Peer> getChokedFrom() {
+		return chokedFrom;
+	}
+
+	/**
+	 * @param chokedFrom
+	 *            the chokedFrom to set
+	 */
+	public static void setChokedFrom(HashSet<Peer> chokedFrom) {
+		CommonPropertiesParser.chokedFrom = chokedFrom;
+	}
+
+	public void readCommonFileInfoFile(Reader reader) throws IOException {
+		BufferedReader in = new BufferedReader(new FileReader(System.getProperty("user.dir") + "/Common.cfg"));
 		try {
-			BufferedReader in = new BufferedReader(new FileReader("Common.cfg"));
 			String line;
 			while ((line = in.readLine()) != null) {
 				String[] configFile = line.split("");
@@ -165,34 +291,27 @@ public class CommonPropertiesParser {
 					break;
 				}
 			}
-			in.close();
-
-			p.noOfPieces = (fileSize / pieceSize) + 1;
-			pieceMatrix = new int[p.noOfPieces][2];
-			int startPos = 0;
-			int psize = pieceSize;
-			int cumpsize = pieceSize;
-			for (int i = 0; i < p.noOfPieces; i++) {
-				pieceMatrix[i][0] = startPos;
-				pieceMatrix[i][1] = psize;
-
-				startPos += psize;
-
-				if (!(fileSize - cumpsize > pieceSize))
-					psize = fileSize - cumpsize;
-
-				cumpsize += psize;
-
+			numberOfPieces = (fileSize / pieceSize) + 1;
+			pieceMatrix = new int[numberOfPieces][2];
+			int startPosition = 0;
+			int tempPieceSize = pieceSize;
+			int totalPieceSize = pieceSize;
+			for (int i = 0; i < numberOfPieces; i++) {
+				pieceMatrix[i][0] = startPosition;
+				pieceMatrix[i][1] = tempPieceSize;
+				startPosition += tempPieceSize;
+				if (!(fileSize - totalPieceSize > pieceSize)) {
+					tempPieceSize = fileSize - totalPieceSize;
+				}
+				totalPieceSize += tempPieceSize;
 			}
-			p.sentRequestMessageByPiece = new boolean[p.noOfPeers][p.noOfPieces];
-			p.chokedfrom = new HashSet<>();
-			p.peerSocketMap = new HashMap<>();
-			p.bqm = new LinkedBlockingQueue<MessageWriter>();
-			p.bql = new LinkedBlockingQueue<String>();
+			sentRequestMessageByPiece = new boolean[totalPeers][numberOfPieces];
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
 			e.printStackTrace();
+		} finally {
+			in.close();
 		}
 
 	}

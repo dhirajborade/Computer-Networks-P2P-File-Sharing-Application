@@ -26,7 +26,7 @@ public class OptimisticallyUnchokedNeighborThread implements Runnable {
 		while (!peerProcess.exit) {
 			try {
 
-				Thread.sleep(peerProcess.OptimisticUnchokingInterval * 1000);
+				Thread.sleep(CommonPropertiesParser.getOptimisticUnchokingInterval() * 1000);
 
 				interestedPeers = new ArrayList<>();
 				for (Peer p : peerProcess.peerSocketMap.keySet()) {
@@ -49,7 +49,7 @@ public class OptimisticallyUnchokedNeighborThread implements Runnable {
 					peerProcess.optimisticallyUnchokedNeighbor = interestedPeers.get(ran.nextInt(interestedPeers.size()));
 					peerProcess.sendUnChokeMessage(new HashSet<>(Arrays.asList(peerProcess.optimisticallyUnchokedNeighbor)));
 					peerProcess.bql.put(
-							"Peer " + peerProcess.currentPeer.getPeerID() + " has the optimistically unchoked neighbor "
+							"Peer " + PeerProcess.currentPeer.getPeerID() + " has the optimistically unchoked neighbor "
 									+ peerProcess.optimisticallyUnchokedNeighbor.getPeerID() + ".");
 				}
 

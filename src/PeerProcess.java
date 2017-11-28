@@ -38,21 +38,21 @@ public class PeerProcess {
 	// String FileName;
 	// int FileSize;
 	// int PieceSize;
-	int noOfPieces;
+	// int noOfPieces;
 	int noOfPeerHS;
 	int noOfPeers;
 	boolean isFilePresent;
 	ServerSocket serverSocket;
 	DateFormat sdf;
 	File logfile;
-	HashSet<Peer> chokedfrom;
+	HashSet<Peer> chokedFrom;
 	HashSet<Peer> PreferedNeighbours;
 	HashSet<Peer> NewPrefNeighbors;
 	HashSet<Peer> sendUnchokePrefNeig;
 	Peer optimisticallyUnchokedNeighbor;
 	PriorityQueue<DownloadingRate> unchokingIntervalWisePeerDownloadingRate;
 	Logger logger;
-	boolean[][] sentRequestMessageByPiece;
+	static boolean[][] sentRequestMessageByPiece;
 	boolean fileComplete;
 	static int lastPeerID;
 	BlockingQueue<MessageWriter> bqm;
@@ -71,6 +71,10 @@ public class PeerProcess {
 		sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		noOfPeers = PeerInfoConfigParser.getTotalPeers();
 		fileComplete = false;
+		chokedFrom = new HashSet<>();
+		peerSocketMap = new HashMap<>();
+		bqm = new LinkedBlockingQueue<MessageWriter>();
+		bql = new LinkedBlockingQueue<String>();
 	}
 
 	public void copyFileUsingStream(String fileSource, String fileDestination) throws IOException {
@@ -110,29 +114,6 @@ public class PeerProcess {
 		}
 	}
 
-	private void initializePeerParams(PeerProcess p) throws IOException {
-
-		noOfPieces = (CommonPropertiesParser.getFileSize() / CommonPropertiesParser.getPieceSize()) + 1;
-		pieceMatrix = new int[noOfPieces][2];
-		int startPos = 0;
-		int psize = CommonPropertiesParser.getPieceSize();
-		int cumpsize = CommonPropertiesParser.getPieceSize();
-		for (int i = 0; i < noOfPieces; i++) {
-			pieceMatrix[i][0] = startPos;
-			pieceMatrix[i][1] = psize;
-			startPos += psize;
-			if (!(CommonPropertiesParser.getFileSize() - cumpsize > CommonPropertiesParser.getPieceSize())) {
-				psize = CommonPropertiesParser.getFileSize() - cumpsize;
-			}
-			cumpsize += psize;
-		}
-		sentRequestMessageByPiece = new boolean[this.noOfPeers][this.noOfPieces];
-		chokedfrom = new HashSet<>();
-		peerSocketMap = new HashMap<>();
-		bqm = new LinkedBlockingQueue<MessageWriter>();
-		bql = new LinkedBlockingQueue<String>();
-	}
-
 	public static void main(String[] args) {
 
 		/***
@@ -140,10 +121,17 @@ public class PeerProcess {
 		 * peer list
 		 ***/
 		PeerInfoConfigParser peerInfo = new PeerInfoConfigParser();
+		CommonPropertiesParser commInfo = new CommonPropertiesParser();
 		FileReader peerInfoReader = null;
+		FileReader commInfoReader = null;
 		try {
 			peerInfoReader = new FileReader(PeerInfoConfigParser.getConfigFileName());
 			peerInfo.readPeerInfoFile(peerInfoReader);
+			/***
+			 * Reads common.cfg file and initializes peer process variables
+			 ***/
+			commInfoReader = new FileReader(CommonPropertiesParser.getConfigFileName());
+			commInfo.readCommonFileInfoFile(commInfoReader);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException | ParseException e) {
@@ -156,10 +144,6 @@ public class PeerProcess {
 
 			new File("peer_" + args[0]).mkdir();
 			peerProcess.initateLogFile(args[0]);
-			/***
-			 * Reads common.cfg file and initializes peer process variables
-			 ***/
-			peerProcess.initializePeerParams(peerProcess);
 
 			peerProcess.unchokingIntervalWisePeerDownloadingRate = new PriorityQueue<>(
 					new Comparator<DownloadingRate>() {
@@ -176,6 +160,8 @@ public class PeerProcess {
 
 			/*** Reads peerInfo.cfg file and initializes peerList ***/
 			peerInfo.initializePeerList(peerProcess, args[0]);
+
+			sentRequestMessageByPiece = CommonPropertiesParser.getSentRequestMessageByPiece();
 
 			/*** Initializes File Manager ***/
 			peerInfo.initializeFileManager(peerProcess, args[0]);
@@ -331,7 +317,7 @@ public class PeerProcess {
 	}
 
 	public boolean checkIfFullFileRecieved(Peer p) {
-		for (int i = 0; i < PeerProcess.this.noOfPieces; i++) {
+		for (int i = 0; i < CommonPropertiesParser.getNumberOfPieces(); i++) {
 			if (getBit(p.getBitfield(), i) == 0) {
 				return false;
 			}
@@ -356,7 +342,7 @@ public class PeerProcess {
 			mread = new MessageReader(socket, PeerProcess.this);
 			this.initiateHandShake = initiateHS;
 
-			this.peer.setInterestedFromBitfield(new boolean[PeerProcess.this.noOfPieces]);
+			this.peer.setInterestedFromBitfield(new boolean[CommonPropertiesParser.getNumberOfPieces()]);
 
 			if (initiateHandShake)
 				sendHandShake();
@@ -480,7 +466,7 @@ public class PeerProcess {
 		 */
 		private void sendInterestedifApplicable() throws IOException {
 
-			for (int i = 0; i < noOfPieces; i++) {
+			for (int i = 0; i < CommonPropertiesParser.getNumberOfPieces(); i++) {
 				int bitAtIndexOfCurrPeer = getBit(currentPeer.getBitfield(), i);
 				int bitAtIndexOfPeer = getBit(peer.getBitfield(), i);
 				if (bitAtIndexOfCurrPeer == 0 && bitAtIndexOfPeer == 1) {
@@ -516,7 +502,7 @@ public class PeerProcess {
 				 * Get list of all pieces not yet received and for which request has not yet
 				 * been sent
 				 */
-				for (int i = 0; i < PeerProcess.this.noOfPieces; i++) {
+				for (int i = 0; i < CommonPropertiesParser.getNumberOfPieces(); i++) {
 					if (getBit(PeerProcess.currentPeer.getBitfield(), i) == 0 && getBit(peer.getBitfield(), i) == 1) {
 						pieceIndex.add(i);
 					}
@@ -596,7 +582,7 @@ public class PeerProcess {
 		private void sendNIToSomeNeighbours() throws IOException {
 			List<Integer> NIIndices = new ArrayList<Integer>();
 
-			for (int i = 0; i < PeerProcess.this.noOfPieces; i++) {
+			for (int i = 0; i < CommonPropertiesParser.getNumberOfPieces(); i++) {
 				if (getBit(PeerProcess.currentPeer.getBitfield(), i) == 1)
 					NIIndices.add(i);
 			}
@@ -604,9 +590,9 @@ public class PeerProcess {
 			for (Peer p : PeerProcess.this.peerInfoVector) {
 				if (p.isHandShakeDone()) {
 					boolean amIInterestedInAnyPiecesOfThisPeer = false;
-					for (int j = 0; j < PeerProcess.this.noOfPieces; j++) {
+					for (int j = 0; j < CommonPropertiesParser.getNumberOfPieces(); j++) {
 						if (getBit(p.getBitfield(), j) == 1 && !NIIndices.contains(j)
-								&& !PeerProcess.this.sentRequestMessageByPiece[peerInfoVector.indexOf(p)][j]) {
+								&& !PeerProcess.sentRequestMessageByPiece[peerInfoVector.indexOf(p)][j]) {
 							{
 								amIInterestedInAnyPiecesOfThisPeer = true;
 								break;
@@ -626,21 +612,6 @@ public class PeerProcess {
 				}
 			}
 		}
-
-		/**
-		 * @param j
-		 * @return
-		 *
-		 */
-		// private boolean sentRequestForIndex(int j) {
-		// // TODO Auto-generated method stub
-		//
-		// for (int i = 0; i < PeerProcess.this.noOfPeers; i++)
-		// if (sentRequestMessageByPiece[i][j])
-		// return true;
-		//
-		// return false;
-		// }
 
 		/**
 		 * @param message
@@ -723,7 +694,7 @@ public class PeerProcess {
 
 			int nop = 0;
 
-			for (int j = 0; j < PeerProcess.this.noOfPieces; j++)
+			for (int j = 0; j < CommonPropertiesParser.getNumberOfPieces(); j++)
 				if (getBit(PeerProcess.currentPeer.getBitfield(), j) == 1)
 					nop++;
 
@@ -757,15 +728,15 @@ public class PeerProcess {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			chokedfrom.add(p);
+			chokedFrom.add(p);
 			int indexOfPeer = peerInfoVector.indexOf(p);
 			// reset the sentRequestMessageBy Piece array by comparing the
 			// bitfield array and request array
-			for (int i = 0; i < PeerProcess.this.noOfPieces; i++) {
-				if (PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][i]) {
+			for (int i = 0; i < CommonPropertiesParser.getNumberOfPieces(); i++) {
+				if (PeerProcess.sentRequestMessageByPiece[indexOfPeer][i]) {
 					// check if piece received, if not reset the request message
 					// field
-					PeerProcess.this.sentRequestMessageByPiece[indexOfPeer][i] = false;
+					PeerProcess.sentRequestMessageByPiece[indexOfPeer][i] = false;
 				}
 			}
 		}
@@ -780,7 +751,7 @@ public class PeerProcess {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			chokedfrom.remove(p);
+			chokedFrom.remove(p);
 
 			if (!isFilePresent) {
 				// after receiving unchoke, check if this peer is interested in
@@ -790,7 +761,7 @@ public class PeerProcess {
 				// other
 				// peer
 				List<Integer> interestedPieces = new ArrayList<Integer>();
-				for (int i = 0; i < PeerProcess.this.noOfPieces; i++) {
+				for (int i = 0; i < CommonPropertiesParser.getNumberOfPieces(); i++) {
 					int bitPresent = getBit(currentPeer.getBitfield(), i);
 					int bitPresentAtPeerWeRequesting = getBit(p.getBitfield(), i);
 					if (bitPresent == 0 && bitPresentAtPeerWeRequesting == 1) {
@@ -822,8 +793,7 @@ public class PeerProcess {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				PeerProcess.this.sentRequestMessageByPiece[PeerProcess.this.peerInfoVector
-						.indexOf(p)][pieceIndex] = true;
+				PeerProcess.sentRequestMessageByPiece[PeerProcess.this.peerInfoVector.indexOf(p)][pieceIndex] = true;
 			}
 		}
 	}

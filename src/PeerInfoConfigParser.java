@@ -174,7 +174,7 @@ public class PeerInfoConfigParser {
 	}
 
 	public void initializeFileManager(PeerProcess p, String peerID) throws IOException {
-		int bfsize = (int) Math.ceil((double) (p.noOfPieces / 8.0));
+		int bfsize = (int) Math.ceil((double) (CommonPropertiesParser.getNumberOfPieces() / 8.0));
 		Iterator<Peer> itr = getPeerInfoVector().iterator();
 		while (itr.hasNext()) {
 			Peer tempPeer = (Peer) itr.next();
@@ -189,21 +189,23 @@ public class PeerInfoConfigParser {
 			} else {
 				currentPeer = tempPeer;
 				if (p.isFilePresent) {
-					p.copyFileUsingStream(new String(System.getProperty("user.dir") + "/" + p.FileName),
-							new String(System.getProperty("user.dir") + "/peer_" + peerID + "/" + p.FileName));
-					p.FileName = System.getProperty("user.dir") + "/peer_" + currentPeer.getPeerID() + "/"
-							+ p.FileName;
-					System.out.println(p.FileName);
+					p.copyFileUsingStream(
+							new String(System.getProperty("user.dir") + "/" + CommonPropertiesParser.getFileName()),
+							new String(System.getProperty("user.dir") + "/peer_" + peerID + "/"
+									+ CommonPropertiesParser.getFileName()));
+					CommonPropertiesParser.setFileName(System.getProperty("user.dir") + "/peer_"
+							+ currentPeer.getPeerID() + "/" + CommonPropertiesParser.getFileName());
+					System.out.println(CommonPropertiesParser.getFileName());
 					p.fileComplete = true;
 					currentPeer.setBitfield(new byte[bfsize]);
-					for (int i = 0; i < p.noOfPieces; i++) {
+					for (int i = 0; i < CommonPropertiesParser.getNumberOfPieces(); i++) {
 						PeerProcess.setBit(currentPeer.getBitfield(), i);
 					}
 				} else {
-					p.FileName = System.getProperty("user.dir") + "/peer_" + currentPeer.getPeerID() + "/"
-							+ p.FileName;
-					new File(p.FileName).delete();
-					new File(p.FileName).createNewFile();
+					CommonPropertiesParser.setFileName(System.getProperty("user.dir") + "/peer_"
+							+ currentPeer.getPeerID() + "/" + CommonPropertiesParser.getFileName());
+					new File(CommonPropertiesParser.getFileName()).delete();
+					new File(CommonPropertiesParser.getFileName()).createNewFile();
 					currentPeer.setBitfield(new byte[bfsize]);
 					Arrays.fill(currentPeer.getBitfield(), (byte) 0);
 				}
