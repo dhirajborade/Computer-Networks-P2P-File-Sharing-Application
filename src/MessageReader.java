@@ -3,23 +3,10 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 
-/**
- * 
- */
-
-/**
- * @author Tejas
- *
- */
 public class MessageReader {
 
 	Socket socket;
 	PeerProcess peerProcess;
-	/**
-	 * @param in
-	 * @throws IOException
-	 */
-
 	private boolean isHandshakeDone = false;
 
 	public MessageReader(Socket socket, PeerProcess p) throws IOException {
@@ -31,15 +18,13 @@ public class MessageReader {
 	public Object readObject() throws Exception {
 		InputStream inputStream = socket.getInputStream();
 		if (isHandshakeDone) {
-			while (!peerProcess.exit && inputStream.available() < 4)
-				;
-			
+			while (!peerProcess.exit && inputStream.available() < 4) {
+			}
 			byte[] lengthBytes = new byte[4];
 			inputStream.read(lengthBytes, 0, 4);
 			int length = ByteBuffer.wrap(lengthBytes).getInt();
-
-			while (inputStream.available() < length)
-				;
+			while (inputStream.available() < length) {
+			}
 			byte[] typeBuffer = new byte[1];
 			try {
 				inputStream.read(typeBuffer, 0, 1);
@@ -61,7 +46,7 @@ public class MessageReader {
 					}
 				}
 			}
-			System.out.println("available after reading payload:"+inputStream.available());
+			System.out.println("available after reading payload:" + inputStream.available());
 			Message m = new Message(length, type, payload);
 			return m;
 		} else {

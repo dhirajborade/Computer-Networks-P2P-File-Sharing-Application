@@ -18,28 +18,22 @@ public class MessageWriter {
 
 	public void writeObject() throws IOException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		System.out.println("Sending message :"+m);
+		System.out.println("Sending Message :" + m);
 		if (m instanceof HandShake) {
-			HandShake hs = (HandShake) m;
-
-			bos.write(hs.header, 0, hs.header.length);
-			bos.write(hs.zerobits, 0, hs.zerobits.length);
-			bos.write(hs.peerID, 0, hs.peerID.length);
+			HandShake handShakeMessage = (HandShake) m;
+			bos.write(handShakeMessage.getHeader(), 0, handShakeMessage.getHeader().length);
+			bos.write(handShakeMessage.getZeroBits(), 0, handShakeMessage.getZeroBits().length);
+			bos.write(handShakeMessage.getPeerID(), 0, handShakeMessage.getPeerID().length);
 		} else {
 			System.out.println(os.size());
-			bos.write(ByteBuffer.allocate(4).putInt(m.length).array(), 0 ,4);
-			//os.flush();
-			bos.write(new byte[]{m.type},0,1);
-			//os.flush();
-			
+			bos.write(ByteBuffer.allocate(4).putInt(m.length).array(), 0, 4);
+			bos.write(new byte[] { m.type }, 0, 1);
 			if ((m.payload != null) && (m.payload.length > 0)) {
-				System.out.println("payload length tp be sent:"+m.payload.length);
-				//System.out.println("payload:"+Arrays.toString(m.payload));
-				bos.write(m.payload,0,m.payload.length);
+				System.out.println("Payload Length tp be sent:" + m.payload.length);
+				bos.write(m.payload, 0, m.payload.length);
 			}
 		}
-		//bos.flush();
-		System.out.println("writing buffer size:"+bos.size());
+		System.out.println("Writing Buffer Size:" + bos.size());
 		os.write(bos.toByteArray());
 		os.flush();
 	}

@@ -10,16 +10,10 @@ public class PrefferedNeighborsThread implements Runnable {
 		this.peerProces = peerProces;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see java.lang.Runnable#run()
-	 */
 	@Override
 	public void run() {
 		while (!peerProces.exit) {
 			try {
-
 				Thread.sleep(CommonPropertiesParser.getUnchokingInterval() * 1000);
 				if (peerProces.peerInfoVector.size() > 0) {
 					peerProces.NewPrefNeighbors = new HashSet<Peer>();
@@ -63,11 +57,9 @@ public class PrefferedNeighborsThread implements Runnable {
 							Peer p = peerProces.peerInfoVector.get(ran.nextInt(peerProces.peerInfoVector.size()));
 							if (p.isInterestedInPieces())
 								peerProces.NewPrefNeighbors.add(p);
-
 						}
 					}
 					if (peerProces.NewPrefNeighbors.size() > 0) {
-
 						// send unchoke only to the new ones
 						peerProces.sendUnchokePrefNeig = new HashSet<>();
 						// deep copying list
@@ -80,15 +72,12 @@ public class PrefferedNeighborsThread implements Runnable {
 							}
 						}
 						peerProces.sendUnchokePrefNeig.removeAll(peerProces.PreferedNeighbours);
-
 						// send choke messages to other who are not present
 						// in
 						// the
 						// new list of preferred neighbors
 						peerProces.PreferedNeighbours.removeAll(peerProces.NewPrefNeighbors);
-
 						peerProces.sendChokeMessage(peerProces.PreferedNeighbours);
-
 						peerProces.sendUnChokeMessage(new HashSet<>(peerProces.sendUnchokePrefNeig));
 						peerProces.PreferedNeighbours = peerProces.NewPrefNeighbors;
 

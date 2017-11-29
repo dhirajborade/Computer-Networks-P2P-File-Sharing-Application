@@ -296,14 +296,18 @@ public class CommonPropertiesParser {
 			int startPosition = 0;
 			int tempPieceSize = pieceSize;
 			int totalPieceSize = pieceSize;
-			for (int i = 0; i < numberOfPieces; i++) {
-				pieceMatrix[i][0] = startPosition;
-				pieceMatrix[i][1] = tempPieceSize;
+			int indexI = 0;
+			while (indexI < numberOfPieces) {
+				pieceMatrix[indexI][0] = startPosition;
+				pieceMatrix[indexI][1] = tempPieceSize;
 				startPosition += tempPieceSize;
-				if (!(fileSize - totalPieceSize > pieceSize)) {
+				if ((fileSize - totalPieceSize) > pieceSize) {
+
+				} else {
 					tempPieceSize = fileSize - totalPieceSize;
 				}
 				totalPieceSize += tempPieceSize;
+				indexI++;
 			}
 			totalPeers = PeerInfoConfigParser.getTotalPeers();
 			sentRequestMessageByPiece = new boolean[totalPeers][numberOfPieces];

@@ -1,32 +1,25 @@
 import java.io.Serializable;
 
-public class Message implements Serializable {		
-	
-	/**
-	 * 
-	 */
+public class Message implements Serializable {
+
 	private static final long serialVersionUID = 985205199122584865L;
-	int length ;
+	int length;
 	byte type;
 	byte[] payload;
-	
-	public Message(){
+
+	public Message() {
 		super();
 	}
-	public Message(int l , byte type , byte[] p)
-	{
-		this.length = l;
+
+	public Message(int length, byte type, byte[] payload) {
+		this.length = length;
 		this.type = type;
-		this.payload = p;
+		this.payload = payload;
 	}
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
+
 	@Override
 	public String toString() {
 		return "Message [length=" + length + ", type=" + Byte.toUnsignedInt(type) + "]";
 	}
-	
-	
-	
+
 }

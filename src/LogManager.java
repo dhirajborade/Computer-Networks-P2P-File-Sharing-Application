@@ -3,51 +3,71 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 class LogManager implements Runnable {
-	BlockingQueue<String> bql;
-	Logger logger;
-	PeerProcess peerProcess;
+	private static BlockingQueue<String> blockingQueueLog;
+	private static Logger logger;
+	private static PeerProcess peerProcess;
 
-	public LogManager(BlockingQueue<String> b, Logger logger, PeerProcess peerProcess) {
-		this.bql = b;
-		this.logger = logger;
-		this.peerProcess = peerProcess;
+	public LogManager(BlockingQueue<String> blockingQueueLog, Logger logger, PeerProcess peerProcess) {
+		LogManager.blockingQueueLog = blockingQueueLog;
+		LogManager.logger = logger;
+		LogManager.peerProcess = peerProcess;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Runnable#run()
+	/**
+	 * @return the blockingQueueLog
 	 */
+	public static BlockingQueue<String> getBlockingQueueLog() {
+		return blockingQueueLog;
+	}
+
+	/**
+	 * @param blockingQueueLog
+	 *            the blockingQueueLog to set
+	 */
+	public static void setBlockingQueueLog(BlockingQueue<String> blockingQueueLog) {
+		LogManager.blockingQueueLog = blockingQueueLog;
+	}
+
+	/**
+	 * @return the logger
+	 */
+	public static Logger getLogger() {
+		return logger;
+	}
+
+	/**
+	 * @param logger
+	 *            the logger to set
+	 */
+	public static void setLogger(Logger logger) {
+		LogManager.logger = logger;
+	}
+
+	/**
+	 * @return the peerProcess
+	 */
+	public static PeerProcess getPeerProcess() {
+		return peerProcess;
+	}
+
+	/**
+	 * @param peerProcess
+	 *            the peerProcess to set
+	 */
+	public static void setPeerProcess(PeerProcess peerProcess) {
+		LogManager.peerProcess = peerProcess;
+	}
+
 	@Override
 	public void run() {
 		try {
-			while (!peerProcess.exit) {
-				while (!bql.isEmpty())
-					logger.log(Level.INFO, bql.take());
-				/*else {
-					int peerCompleteFileReceived = 0;
-					for (Peer p : peerProcess.peerList) {
-						if (peerProcess.checkIfFullFileRecieved(p)) {
-							peerCompleteFileReceived++;
-						}
-					}
-					if (peerCompleteFileReceived == peerProcess.peerList.size()) {
-						// check if you recievecd the whole file
-						if (peerProcess.checkIfFullFileRecieved(peerProcess.currentPeer)) {
-							// now terminate the process of executorService
-							// exec.shutdown();
-
-							break;
-						}
-					}
-				}*/
+			for (; !getPeerProcess().exit;) {
+				for (; !getBlockingQueueLog().isEmpty();)
+					getLogger().log(Level.INFO, getBlockingQueueLog().take());
 			}
-		} catch (InterruptedException ex) {
-			ex.printStackTrace();
-			peerProcess.exit=true;
-			
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+			getPeerProcess().exit = true;
 		}
-
 	}
-
 }
