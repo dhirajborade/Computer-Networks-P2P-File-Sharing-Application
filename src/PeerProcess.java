@@ -18,7 +18,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.concurrent.BlockingQueue;
@@ -206,15 +205,23 @@ public class PeerProcess {
 					}
 				}
 				// check for termination of this process
+				Iterator<Peer> iter = peerInfoVector.iterator();
+				while (iter.hasNext()) {
+					Peer p = iter.next();
+					if (!checkIfFullFileRecieved(p)) {
 
-				for (Peer p : peerInfoVector) {
-					if (checkIfFullFileRecieved(p)) {
+					} else {
 						peerCompleteFileReceived++;
 					}
 				}
-				if (peerCompleteFileReceived == peerInfoVector.size()) {
+
+				if (peerCompleteFileReceived != peerInfoVector.size()) {
+
+				} else {
 					// check if you recievecd the whole file
-					if (checkIfFullFileRecieved(currentPeer)) {
+					if (!checkIfFullFileRecieved(currentPeer)) {
+
+					} else {
 						// now terminate the process of executorService
 						this.exit = true;
 						break;
@@ -228,17 +235,18 @@ public class PeerProcess {
 		} finally {
 			try {
 
-				while (!exec.isTerminated()) {
+				for (; !exec.isTerminated();) {
 					prefNeighborTask.cancel(true);
 					optimisticallyUnchokeNeighborTask.cancel(true);
-					while (!bqm.isEmpty()) {
+					for (; !bqm.isEmpty();) {
 					}
-					while (!bql.isEmpty()) {
+					for (; !bql.isEmpty();) {
 					}
 					messageQueueTask.cancel(true);
 					logManagerTask.cancel(true);
 					exec.shutdownNow();
 				}
+
 				Iterator<Socket> iter = peerSocketMap.values().iterator();
 				while (iter.hasNext()) {
 					Socket s = iter.next();
@@ -248,11 +256,6 @@ public class PeerProcess {
 						s.close();
 					}
 				}
-
-//				for (Socket s : peerSocketMap.values()) {
-//					if (!s.isClosed())
-//						s.close();
-//				}
 
 				serverSocket.close();
 
