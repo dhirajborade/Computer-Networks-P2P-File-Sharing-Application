@@ -10,25 +10,151 @@ import java.util.Random;
 
 public class ConnectionManager extends Thread {
 
-	Socket socket;
-	MessageReader messageRead;
-	DataOutputStream outputStream;
-	Peer peer;
-	boolean initiateHandShake;
-	long starttime, endtime;
-	PeerProcess peerProc;
+	private Socket socket;
+	private MessageReader messageRead;
+	private DataOutputStream outputStream;
+	private Peer peer;
+	private boolean initiateHandShake;
+	private long startTime;
+	private long endTime;
+	private PeerProcess peerProc;
 
 	ConnectionManager(PeerProcess peerProc, Peer peer, boolean initiateHandShake) throws IOException {
-		this.peerProc = peerProc;
-		this.socket = peerProc.peerSocketMap.get(peer);
-		this.peer = peer;
-		this.socket.setSoLinger(true, 70);
+		this.setPeerProc(peerProc);
+		this.setSocket(socket);
+		this.setPeer(peer);
+		this.getSocket().setSoLinger(true, 70);
+		this.setMessageRead(new MessageReader(this.getSocket(), peerProc));
+		this.setInitiateHandShake(initiateHandShake);
+		this.getPeer().setInterestedFromBitfield(new boolean[CommonPropertiesParser.getNumberOfPieces()]);
 		this.messageRead = new MessageReader(this.socket, peerProc);
 		this.initiateHandShake = initiateHandShake;
 		this.peer.setInterestedFromBitfield(new boolean[CommonPropertiesParser.getNumberOfPieces()]);
-		if (this.initiateHandShake) {
+		if (!this.isInitiateHandShake()) {
+
+		} else {
 			this.sendHandShake();
 		}
+	}
+
+	/**
+	 * @return the socket
+	 */
+	public Socket getSocket() {
+		return socket;
+	}
+
+	/**
+	 * @param socket
+	 *            the socket to set
+	 */
+	public void setSocket(Socket socket) {
+		this.socket = socket;
+	}
+
+	/**
+	 * @return the messageRead
+	 */
+	public MessageReader getMessageRead() {
+		return messageRead;
+	}
+
+	/**
+	 * @param messageRead
+	 *            the messageRead to set
+	 */
+	public void setMessageRead(MessageReader messageRead) {
+		this.messageRead = messageRead;
+	}
+
+	/**
+	 * @return the outputStream
+	 */
+	public DataOutputStream getOutputStream() {
+		return outputStream;
+	}
+
+	/**
+	 * @param outputStream
+	 *            the outputStream to set
+	 */
+	public void setOutputStream(DataOutputStream outputStream) {
+		this.outputStream = outputStream;
+	}
+
+	/**
+	 * @return the peer
+	 */
+	public Peer getPeer() {
+		return peer;
+	}
+
+	/**
+	 * @param peer
+	 *            the peer to set
+	 */
+	public void setPeer(Peer peer) {
+		this.peer = peer;
+	}
+
+	/**
+	 * @return the initiateHandShake
+	 */
+	public boolean isInitiateHandShake() {
+		return initiateHandShake;
+	}
+
+	/**
+	 * @param initiateHandShake
+	 *            the initiateHandShake to set
+	 */
+	public void setInitiateHandShake(boolean initiateHandShake) {
+		this.initiateHandShake = initiateHandShake;
+	}
+
+	/**
+	 * @return the startTime
+	 */
+	public long getStartTime() {
+		return startTime;
+	}
+
+	/**
+	 * @param startTime
+	 *            the startTime to set
+	 */
+	public void setStartTime(long startTime) {
+		this.startTime = startTime;
+	}
+
+	/**
+	 * @return the endTime
+	 */
+	public long getEndTime() {
+		return endTime;
+	}
+
+	/**
+	 * @param endTime
+	 *            the endTime to set
+	 */
+	public void setEndTime(long endTime) {
+		this.endTime = endTime;
+	}
+
+	/**
+	 * @return the peerProc
+	 */
+	public PeerProcess getPeerProc() {
+		return peerProc;
+	}
+
+	/**
+	 * @param peerProc
+	 *            the peerProc to set
+	 */
+	public void setPeerProc(PeerProcess peerProc) {
+		this.peerProc = peerProc;
 	}
 
 	private void sendHandShake() throws IOException {
@@ -46,9 +172,9 @@ public class ConnectionManager extends Thread {
 		for (; !peerProc.exit;) {
 			try {
 				Object obj;
-				starttime = System.currentTimeMillis();
+				startTime = System.currentTimeMillis();
 				obj = messageRead.readObject();
-				endtime = System.currentTimeMillis();
+				endTime = System.currentTimeMillis();
 				if (obj instanceof HandShake) {
 					HandShake handShakeMessage = (HandShake) obj;
 					if (ByteBuffer.wrap(handShakeMessage.getPeerID()).getInt() != this.peer.getPeerID()) {
@@ -64,16 +190,16 @@ public class ConnectionManager extends Thread {
 				} else if (obj instanceof Message) {
 					Message message = (Message) obj;
 					System.out.println(message);
-					int messageType = Byte.toUnsignedInt(message.type);
+					int messageType = Byte.toUnsignedInt(message.getType());
 					if (messageType == 0) {
-						choke(peer);
+						choke(this.peer);
 					} else if (messageType == 1) {
-						unchoke(peer);
+						unchoke(this.peer);
 					} else if (messageType == 2) {
 						this.peer.setInterestedInPieces(true);
 						try {
 							peerProc.bql.put("Peer " + PeerProcess.currentPeer.getPeerID()
-									+ " received the 'interested' message from " + peer.getPeerID());
+									+ " received the 'interested' message from " + this.peer.getPeerID());
 						} catch (InterruptedException e1) {
 							e1.printStackTrace();
 						}
@@ -81,7 +207,7 @@ public class ConnectionManager extends Thread {
 						this.peer.setInterestedInPieces(false);
 						try {
 							peerProc.bql.put("Peer " + PeerProcess.currentPeer.getPeerID()
-									+ " received the 'not interested' message from " + peer.getPeerID());
+									+ " received the 'not interested' message from " + this.peer.getPeerID());
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
@@ -89,7 +215,7 @@ public class ConnectionManager extends Thread {
 						processHaveMessage(message);
 					} else if (messageType == 5) {
 						this.peer.setHandShakeDone(true);
-						peer.setBitfield(message.payload);
+						this.peer.setBitfield(message.getPayload());
 						if (!initiateHandShake)
 							sendBitfield();
 						if (!peerProc.isFilePresent) {
@@ -114,7 +240,7 @@ public class ConnectionManager extends Thread {
 		int indexI = 0;
 		while (indexI < CommonPropertiesParser.getNumberOfPieces()) {
 			int bitAtIndexOfCurrPeer = PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), indexI);
-			int bitAtIndexOfPeer = PeerProcess.getBit(peer.getBitfield(), indexI);
+			int bitAtIndexOfPeer = PeerProcess.getBit(this.peer.getBitfield(), indexI);
 			if (!(bitAtIndexOfCurrPeer == 0 && bitAtIndexOfPeer == 1)) {
 
 			} else {
@@ -133,8 +259,8 @@ public class ConnectionManager extends Thread {
 
 	private void processPieceMessage(Message message) throws IOException {
 		updatePeerDownloadingRate();
-		writePieceToFile(message.payload);
-		sendHaveMessageToAll(message.payload);
+		writePieceToFile(message.getPayload());
+		sendHaveMessageToAll(message.getPayload());
 		if (peerProc.fileComplete) {
 
 		} else {
@@ -146,7 +272,7 @@ public class ConnectionManager extends Thread {
 			int indexI = 0;
 			while (indexI < CommonPropertiesParser.getNumberOfPieces()) {
 				if (!(PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), indexI) == 0
-						&& PeerProcess.getBit(peer.getBitfield(), indexI) == 1)) {
+						&& PeerProcess.getBit(this.peer.getBitfield(), indexI) == 1)) {
 
 				} else {
 					pieceIndex.add(indexI);
@@ -159,15 +285,15 @@ public class ConnectionManager extends Thread {
 			} else {
 				Random rnd = new Random();
 				int selectedIndex = rnd.nextInt(pieceIndex.size());
-				sendRequest(peer, pieceIndex.get(selectedIndex));
+				sendRequest(this.peer, pieceIndex.get(selectedIndex));
 			}
 		}
 		sendNIToSomeNeighbours();
 	}
 
 	private void updatePeerDownloadingRate() {
-		DownloadingRate downRate = new DownloadingRate(this.peerProc, peer,
-				(double) (CommonPropertiesParser.getPieceSize() / ((this.endtime - this.starttime) + 1)));
+		DownloadingRate downRate = new DownloadingRate(this.peerProc, this.peer,
+				(double) (CommonPropertiesParser.getPieceSize() / ((this.endTime - this.startTime) + 1)));
 		if (peerProc.unchokingIntervalWisePeerDownloadingRate.contains(downRate)) {
 			peerProc.unchokingIntervalWisePeerDownloadingRate.remove(downRate);
 			peerProc.unchokingIntervalWisePeerDownloadingRate.add(downRate);
@@ -176,6 +302,7 @@ public class ConnectionManager extends Thread {
 		}
 	}
 
+	// TODO
 	private void sendHaveMessageToAll(byte[] payload) throws IOException {
 		byte[] i = new byte[4];
 		System.arraycopy(payload, 0, i, 0, 4);
@@ -256,14 +383,14 @@ public class ConnectionManager extends Thread {
 	 *
 	 */
 	private void processHaveMessage(Message message) throws IOException {
-		int index = ByteBuffer.wrap(message.payload).getInt();
+		int index = ByteBuffer.wrap(message.getPayload()).getInt();
 
 		if (PeerProcess.getBit(this.peer.getBitfield(), index) == 0)
 			PeerProcess.setBit(this.peer.getBitfield(), index);
 
 		try {
 			peerProc.bql.put("Peer " + PeerProcess.currentPeer.getPeerID() + " received the 'have' message from "
-					+ peer.getPeerID() + " for the piece " + index + ".");
+					+ this.peer.getPeerID() + " for the piece " + index + ".");
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
@@ -277,10 +404,10 @@ public class ConnectionManager extends Thread {
 	 *
 	 */
 	private void processRequest(Message message) throws IOException {
-		int index = ByteBuffer.wrap(message.payload).getInt();
+		int index = ByteBuffer.wrap(message.getPayload()).getInt();
 		if (PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), index) == 1) {
 			byte[] piece = new byte[CommonPropertiesParser.getPieceSize() + 4];
-			System.arraycopy(message.payload, 0, piece, 0, 4);
+			System.arraycopy(message.getPayload(), 0, piece, 0, 4);
 			RandomAccessFile rafr = new RandomAccessFile(new File(CommonPropertiesParser.getFileName()), "r");
 			rafr.seek(peerProc.pieceMatrix[index][0]);
 			rafr.readFully(piece, 4, peerProc.pieceMatrix[index][1]);
@@ -316,16 +443,15 @@ public class ConnectionManager extends Thread {
 		int nop = 0;
 
 		for (int j = 0; j < CommonPropertiesParser.getNumberOfPieces(); j++)
-			if (PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), j) == 1)
+			if (PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), j) == 1) {
 				nop++;
-
+			}
 		try {
 			peerProc.bql.put("Peer " + PeerProcess.currentPeer.getPeerID() + " has downloaded the piece " + index
 					+ " from " + this.peer.getPeerID() + ". Now the number of pieces it has is " + (nop + 1));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	private void sendBitfield() throws IOException {
