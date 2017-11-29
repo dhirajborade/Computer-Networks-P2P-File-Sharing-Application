@@ -18,6 +18,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Random;
 import java.util.concurrent.BlockingQueue;
@@ -32,13 +33,6 @@ public class PeerProcess {
 
 	List<Peer> peerInfoVector;
 	static Peer currentPeer;
-	// int NumberOfPreferredNeighbors;
-	// int UnchokingInterval;
-	// int OptimisticUnchokingInterval;
-	// String FileName;
-	// int FileSize;
-	// int PieceSize;
-	// int noOfPieces;
 	int noOfPeerHS;
 	int noOfPeers;
 	boolean isFilePresent;
@@ -84,7 +78,6 @@ public class PeerProcess {
 			srcStream = new FileInputStream(fileSource);
 			dstStream = new FileOutputStream(fileDestination);
 			dstStream.getChannel().transferFrom(srcStream.getChannel(), 0, srcStream.getChannel().size());
-
 		} catch (IOException e) {
 		} finally {
 			try {
@@ -195,9 +188,13 @@ public class PeerProcess {
 
 			while (!PeerProcess.this.exit) {
 				peerCompleteFileReceived = 0;
-				if (currentPeer.getPeerID() != lastPeerID && totalConnectedPeers < peerInfoVector.size()) {
+				if (!(currentPeer.getPeerID() != lastPeerID && totalConnectedPeers < peerInfoVector.size())) {
+
+				} else {
 					Socket socket;
-					if (totalConnectedPeers != this.noOfPeers) {
+					if (!(totalConnectedPeers != this.noOfPeers)) {
+
+					} else {
 						socket = serverSocket.accept();
 						Peer tempPeer = getPeerFromPeerList(socket.getInetAddress().getHostAddress(), socket.getPort());
 						PeerProcess.this.bql.put(
@@ -219,8 +216,7 @@ public class PeerProcess {
 					// check if you recievecd the whole file
 					if (checkIfFullFileRecieved(currentPeer)) {
 						// now terminate the process of executorService
-						// exec.shutdown();
-						PeerProcess.this.exit = true;
+						this.exit = true;
 						break;
 					}
 				}
@@ -235,20 +231,28 @@ public class PeerProcess {
 				while (!exec.isTerminated()) {
 					prefNeighborTask.cancel(true);
 					optimisticallyUnchokeNeighborTask.cancel(true);
-					while (!bqm.isEmpty())
-						;
-					while (!bql.isEmpty())
-						;
+					while (!bqm.isEmpty()) {
+					}
+					while (!bql.isEmpty()) {
+					}
 					messageQueueTask.cancel(true);
 					logManagerTask.cancel(true);
-
 					exec.shutdownNow();
 				}
+				Iterator<Socket> iter = peerSocketMap.values().iterator();
+				while (iter.hasNext()) {
+					Socket s = iter.next();
+					if (s.isClosed()) {
 
-				for (Socket s : peerSocketMap.values()) {
-					if (!s.isClosed())
+					} else {
 						s.close();
+					}
 				}
+
+//				for (Socket s : peerSocketMap.values()) {
+//					if (!s.isClosed())
+//						s.close();
+//				}
 
 				serverSocket.close();
 
