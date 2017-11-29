@@ -163,7 +163,7 @@ public class PeerProcess {
 			/*** Reads peerInfo.cfg file and initializes peerList ***/
 			peerInfo.initializePeerList(peerProcess, args[0]);
 
-			sentRequestMessageByPiece = CommonPropertiesParser.getSentRequestMessageByPiece();
+			PeerProcess.sentRequestMessageByPiece = CommonPropertiesParser.getSentRequestMessageByPiece();
 
 			/*** Initializes File Manager ***/
 			peerInfo.initializeFileManager(peerProcess, args[0]);

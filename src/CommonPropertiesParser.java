@@ -305,6 +305,7 @@ public class CommonPropertiesParser {
 				}
 				totalPieceSize += tempPieceSize;
 			}
+			totalPeers = PeerInfoConfigParser.getTotalPeers();
 			sentRequestMessageByPiece = new boolean[totalPeers][numberOfPieces];
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
