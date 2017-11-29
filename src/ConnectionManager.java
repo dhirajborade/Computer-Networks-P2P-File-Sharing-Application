@@ -21,7 +21,7 @@ public class ConnectionManager extends Thread {
 
 	ConnectionManager(PeerProcess peerProc, Peer peer, boolean initiateHandShake) throws IOException {
 		this.setPeerProc(peerProc);
-		this.setSocket(socket);
+		this.setSocket(peerProc.peerSocketMap.get(peer));
 		this.setPeer(peer);
 		this.getSocket().setSoLinger(true, 70);
 		this.setMessageRead(new MessageReader(this.getSocket(), peerProc));
