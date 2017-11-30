@@ -197,8 +197,7 @@ public class PeerProcess {
 						PeerProcess.this.bql.put(
 								"Peer " + currentPeer.getPeerID() + " is connected from Peer " + tempPeer.getPeerID());
 						peerSocketMap.put(peerInfoVector.get(peerInfoVector.indexOf(tempPeer)), socket);
-						ConnectionManager clientHandler = new ConnectionManager(this, tempPeer, false);
-						clientHandler.start();
+						new Thread(new ConnectionManager(this, tempPeer, false)).start();
 						totalConnectedPeers++;
 					}
 				}
@@ -240,8 +239,8 @@ public class PeerProcess {
 					}
 					for (; !bql.isEmpty();) {
 					}
-					messageQueueTask.cancel(true);
-					logManagerTask.cancel(true);
+					messageQueueTask.cancel(false);
+					logManagerTask.cancel(false);
 					exec.awaitTermination(1, TimeUnit.SECONDS);
 				}
 
@@ -273,10 +272,8 @@ public class PeerProcess {
 	 *
 	 */
 	private Peer getPeerFromPeerList(String hostAddress, int port) {
-
 		Iterator<Peer> it = this.peerInfoVector.iterator();
 		while (it.hasNext()) {
-
 			Peer tempPeer = (Peer) it.next();
 			System.out.println(port);
 			if (tempPeer.getPeerIP().equals(hostAddress))
@@ -292,8 +289,7 @@ public class PeerProcess {
 			PeerProcess.this.bql
 					.put("Peer " + currentPeer.getPeerID() + " makes a connection to Peer " + p.getPeerID());
 			peerSocketMap.put(peerInfoVector.get(this.peerInfoVector.indexOf(p)), socket);
-			ConnectionManager clientHandler = new ConnectionManager(this, p, true);
-			clientHandler.start();
+			new Thread(new ConnectionManager(this, p, true)).start();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {
