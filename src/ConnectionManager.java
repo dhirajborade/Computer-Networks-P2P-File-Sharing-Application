@@ -489,9 +489,6 @@ public class ConnectionManager implements Runnable {
 		}
 	}
 
-	/**
-	 * @param p
-	 */
 	private void unchoke(Peer p) {
 		try {
 			peerProc.bql.put("Peer " + PeerProcess.currentPeer.getPeerID() + " is unchoked by " + p.getPeerID() + ".");
@@ -500,36 +497,43 @@ public class ConnectionManager implements Runnable {
 		}
 		peerProc.chokedFrom.remove(p);
 
-		if (!peerProc.isFilePresent) {
+		if (peerProc.isFilePresent) {
+
+		} else {
 			// after receiving unchoke, check if this peer is interested in
-			// any
-			// of the pieces of the peerUnchokedFrom
-			// if interested, check if that piece is not requested to any
-			// other
-			// peer
-			List<Integer> interestedPieces = new ArrayList<Integer>();
-			for (int i = 0; i < CommonPropertiesParser.getNumberOfPieces(); i++) {
-				int bitPresent = PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), i);
-				int bitPresentAtPeerWeRequesting = PeerProcess.getBit(p.getBitfield(), i);
-				if (bitPresent == 0 && bitPresentAtPeerWeRequesting == 1) {
-					interestedPieces.add(i);
-				}
-			}
-			if (interestedPieces.size() > 0) {
-				// select any one piece randomly
-				Random ran = new Random();
-				int index = ran.nextInt(interestedPieces.size());
-				// peerProc.sentRequestMessageByPiece[indexOfPeer][index]
-				// =
-				// true;
-				sendRequest(p, interestedPieces.get(index));
-			}
+						// any
+						// of the pieces of the peerUnchokedFrom
+						// if interested, check if that piece is not requested to any
+						// other
+						// peer
+						Vector<Integer> interestedPieces = new Vector<Integer>();
+						int indexI = 0;
+						while (indexI < CommonPropertiesParser.getNumberOfPieces()) {
+							int bitPresent = PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), indexI);
+							int bitPresentAtPeerWeRequesting = PeerProcess.getBit(p.getBitfield(), indexI);
+							if (!(bitPresent == 0 && bitPresentAtPeerWeRequesting == 1)) {
+
+							} else {
+								interestedPieces.addElement(indexI);
+							}
+							indexI++;
+						}
+						if (!(interestedPieces.size() > 0)) {
+
+						} else {
+							// select any one piece randomly
+							Random rand = new Random();
+							int index = rand.nextInt(interestedPieces.size());
+							sendRequest(p, interestedPieces.get(index));
+						}
 		}
 	}
 
 	private void sendRequest(Peer p, int pieceIndex) {
-		if (PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), pieceIndex) == 0
-				&& PeerProcess.getBit(p.getBitfield(), pieceIndex) == 1) {
+		if (!(PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), pieceIndex) == 0
+				&& PeerProcess.getBit(p.getBitfield(), pieceIndex) == 1)) {
+
+		} else {
 			Message m = new Message(5, Byte.valueOf(Integer.toString(6)),
 					ByteBuffer.allocate(4).putInt(pieceIndex).array());
 

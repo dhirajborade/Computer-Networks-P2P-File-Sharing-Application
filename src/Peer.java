@@ -23,10 +23,10 @@ public class Peer {
 	 */
 	public Peer(int peerID, String peerIP, int peerPortNumber, boolean filePresent) {
 		super();
-		this.peerID = peerID;
-		this.peerIP = peerIP;
-		this.peerPortNumber = peerPortNumber;
-		this.filePresent = filePresent;
+		this.setPeerID(peerID);
+		this.setPeerIP(peerIP);
+		this.setPeerPortNumber(peerPortNumber);
+		this.setFilePresent(filePresent);
 	}
 
 	/**
@@ -37,27 +37,30 @@ public class Peer {
 	 */
 	public Peer(String peerID, String peerIP, String peerPortNumber, boolean filePresent) {
 		super();
-		this.peerID = Integer.parseInt(peerID);
-		this.peerIP = peerIP;
-		this.peerPortNumber = Integer.parseInt(peerPortNumber);
-		this.filePresent = filePresent;
+		this.setPeerID(Integer.parseInt(peerID));
+		this.setPeerIP(peerIP);
+		this.setPeerPortNumber(Integer.parseInt(peerPortNumber));
+		this.setFilePresent(filePresent);
 	}
 
 	public Peer(int peerID, String peerIP, int peerPortNumber) {
-		this.peerID = peerID;
-		this.peerIP = peerIP;
-		this.peerPortNumber = peerPortNumber;
+		super();
+		this.setPeerID(peerID);
+		this.setPeerIP(peerIP);
+		this.setPeerPortNumber(peerPortNumber);
 	}
 
 	public Peer(String peerIP, int peerPortNumber) {
-		this.peerIP = peerIP;
-		this.peerPortNumber = peerPortNumber;
+		super();
+		this.setPeerIP(peerIP);
+		this.setPeerPortNumber(peerPortNumber);
 	}
 
 	public Peer(String peerID, String peerIP, String peerPortNumber) {
-		this.peerID = Integer.parseInt(peerID);
-		this.peerIP = peerIP;
-		this.peerPortNumber = Integer.parseInt(peerPortNumber);
+		super();
+		this.setPeerID(Integer.parseInt(peerID));
+		this.setPeerIP(peerIP);
+		this.setPeerPortNumber(Integer.parseInt(peerPortNumber));
 	}
 
 	/**
@@ -240,25 +243,15 @@ public class Peer {
 		this.interestedInPieces = interestedInPieces;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((peerIP == null) ? 0 : peerIP.hashCode());
-		result = prime * result + peerPortNumber;
+		result = prime * result + ((this.getPeerIP() == null) ? 0 : this.getPeerIP().hashCode());
+		result = prime * result + this.getPeerPortNumber();
 		return result;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -268,12 +261,12 @@ public class Peer {
 		if (getClass() != obj.getClass())
 			return false;
 		Peer other = (Peer) obj;
-		if (peerIP == null) {
-			if (other.peerIP != null)
+		if (this.getPeerIP() == null) {
+			if (other.getPeerIP() != null)
 				return false;
-		} else if (!peerIP.equals(other.peerIP))
+		} else if (!this.getPeerIP().equals(other.getPeerIP()))
 			return false;
-		if (peerPortNumber != other.peerPortNumber)
+		if (this.getPeerPortNumber() != other.getPeerPortNumber())
 			return false;
 		return true;
 	}

@@ -137,14 +137,13 @@ public class PeerProcess {
 
 			peerProcess.unchokingIntervalWisePeerDownloadingRate = new PriorityQueue<>(
 					new Comparator<DownloadingRate>() {
-						/*
-						 * (non-Javadoc)
-						 *
-						 * @see java.util.Comparator#compare(java. lang. Object, java.lang.Object)
-						 */
 						@Override
 						public int compare(DownloadingRate o1, DownloadingRate o2) {
-							return o1.downloadingRate > o2.downloadingRate ? 1 : -1;
+							if (o1.getDownloadingRate() > o2.getDownloadingRate()) {
+								return 1;
+							} else {
+								return -1;
+							}
 						}
 					});
 
@@ -215,7 +214,7 @@ public class PeerProcess {
 				if (peerCompleteFileReceived != peerInfoVector.size()) {
 
 				} else {
-					// check if you recievecd the whole file
+					// check if you received the whole file
 					if (!checkIfFullFileRecieved(currentPeer)) {
 
 					} else {

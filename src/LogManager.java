@@ -3,6 +3,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 class LogManager implements Runnable {
+
 	private static BlockingQueue<String> blockingQueueLog;
 	private static Logger logger;
 	private static PeerProcess peerProcess;

@@ -69,6 +69,7 @@ public class Message implements Serializable {
 		return serialVersionUID;
 	}
 
+	// TODO
 	@Override
 	public String toString() {
 		return "Message [length=" + this.getLength() + ", type=" + Byte.toUnsignedInt(this.getType()) + "]";
