@@ -234,8 +234,8 @@ public class PeerProcess {
 			try {
 
 				for (; !exec.isTerminated();) {
-					prefNeighborTask.cancel(true);
-					optimisticallyUnchokeNeighborTask.cancel(true);
+					prefNeighborTask.cancel(false);
+					optimisticallyUnchokeNeighborTask.cancel(false);
 					for (; !bqm.isEmpty();) {
 					}
 					for (; !bql.isEmpty();) {
