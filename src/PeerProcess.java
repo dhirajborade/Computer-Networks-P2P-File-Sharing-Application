@@ -22,6 +22,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
@@ -241,7 +242,7 @@ public class PeerProcess {
 					}
 					messageQueueTask.cancel(true);
 					logManagerTask.cancel(true);
-					exec.shutdownNow();
+					exec.awaitTermination(1, TimeUnit.SECONDS);
 				}
 
 				Iterator<Socket> iter = peerSocketMap.values().iterator();
