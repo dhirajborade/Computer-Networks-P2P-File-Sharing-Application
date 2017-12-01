@@ -263,8 +263,15 @@ public class PeerProcess {
 			Peer tempPeer = (Peer) it.next();
 			System.out.println(port);
 			System.out.println(hostAddress);
-			if (tempPeer.getPeerIP().equals(hostAddress))
-				return tempPeer;
+			if (hostAddress == "localhost") {
+				if (tempPeer.getPeerPortNumber() == port) {
+					return tempPeer;
+				}
+			} else {
+				if (tempPeer.getPeerIP().equals(hostAddress)) {
+					return tempPeer;
+				}
+			}
 		}
 		return null;
 	}
