@@ -13,13 +13,12 @@ import com.edu.ufl.cise.cnt5106c.Configuration.CommonPropertiesParser;
 import com.edu.ufl.cise.cnt5106c.Configuration.DownloadingRate;
 import com.edu.ufl.cise.cnt5106c.Configuration.PeerInfoConfigParser;
 import com.edu.ufl.cise.cnt5106c.Handshake.HandShake;
+import com.edu.ufl.cise.cnt5106c.Message.Message;
+import com.edu.ufl.cise.cnt5106c.Message.MessageReader;
+import com.edu.ufl.cise.cnt5106c.Message.MessageType;
+import com.edu.ufl.cise.cnt5106c.Message.MessageWriter;
 import com.edu.ufl.cise.cnt5106c.Peer.Peer;
 import com.edu.ufl.cise.cnt5106c.Peer.PeerProcess;
-
-import Message;
-import MessageReader;
-import MessageType;
-import MessageWriter;
 
 public class ConnectionManager implements Runnable {
 
@@ -32,7 +31,7 @@ public class ConnectionManager implements Runnable {
 	private long endTime;
 	private PeerProcess peerProc;
 
-	ConnectionManager(PeerProcess peerProc, Peer peer, boolean initiateHandShake) throws IOException {
+	public ConnectionManager(PeerProcess peerProc, Peer peer, boolean initiateHandShake) throws IOException {
 		this.setPeerProc(peerProc);
 		this.setSocket(peerProc.peerSocketMap.get(peer));
 		this.setPeer(peer);

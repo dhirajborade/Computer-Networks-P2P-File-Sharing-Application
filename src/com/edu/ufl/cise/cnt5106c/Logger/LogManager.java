@@ -5,7 +5,7 @@ import java.util.logging.Logger;
 
 import com.edu.ufl.cise.cnt5106c.Peer.PeerProcess;
 
-class LogManager implements Runnable {
+public class LogManager implements Runnable {
 	private static BlockingQueue<String> blockingQueueLog;
 	private static Logger logger;
 	private static PeerProcess peerProcess;

@@ -4,6 +4,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import com.edu.ufl.cise.cnt5106c.Handshake.HandShake;
+
 public class MessageWriter {
 	private Message message;
 	private DataOutputStream outStream;

@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 
+import com.edu.ufl.cise.cnt5106c.Handshake.HandShake;
 import com.edu.ufl.cise.cnt5106c.Payload.BitfieldPayload;
 import com.edu.ufl.cise.cnt5106c.Payload.HavePayload;
 import com.edu.ufl.cise.cnt5106c.Payload.PiecePayload;

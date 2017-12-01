@@ -33,6 +33,9 @@ import com.edu.ufl.cise.cnt5106c.Logger.LogFormatter;
 import com.edu.ufl.cise.cnt5106c.Logger.LogManager;
 import com.edu.ufl.cise.cnt5106c.Managers.ConnectionManager;
 import com.edu.ufl.cise.cnt5106c.Managers.PeerManager;
+import com.edu.ufl.cise.cnt5106c.Message.Message;
+import com.edu.ufl.cise.cnt5106c.Message.MessageQueueProcess;
+import com.edu.ufl.cise.cnt5106c.Message.MessageWriter;
 
 public class PeerProcess {
 
@@ -42,19 +45,19 @@ public class PeerProcess {
 	ServerSocket serverSocket;
 	DateFormat sdf;
 	File logfile;
-	HashSet<Peer> chokedFrom;
-	HashSet<Peer> PreferedNeighbours;
-	HashSet<Peer> NewPrefNeighbors;
-	HashSet<Peer> sendUnchokePrefNeig;
-	Peer optimisticallyUnchokedNeighbor;
-	PriorityQueue<DownloadingRate> unchokingIntervalWisePeerDownloadingRate;
+	public HashSet<Peer> chokedFrom;
+	public HashSet<Peer> PreferedNeighbours;
+	public HashSet<Peer> NewPrefNeighbors;
+	public HashSet<Peer> sendUnchokePrefNeig;
+	public Peer optimisticallyUnchokedNeighbor;
+	public PriorityQueue<DownloadingRate> unchokingIntervalWisePeerDownloadingRate;
 	Logger logger;
-	static boolean[][] sentRequestMessageByPiece;
+	public static boolean[][] sentRequestMessageByPiece;
 	public boolean fileComplete;
 	static int lastPeerID;
-	BlockingQueue<MessageWriter> blockingQueueMessages;
-	BlockingQueue<String> blockingQueueLogging;
-	HashMap<Peer, Socket> peerSocketMap;
+	public BlockingQueue<MessageWriter> blockingQueueMessages;
+	public BlockingQueue<String> blockingQueueLogging;
+	public HashMap<Peer, Socket> peerSocketMap;
 	//int[][] pieceMatrix;
 	public final Object inputSynchronize = new Object();
 	Future<?> prefNeighborTask;
