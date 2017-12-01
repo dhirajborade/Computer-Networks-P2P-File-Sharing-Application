@@ -43,23 +43,6 @@ public class Peer {
 		this.filePresent = filePresent;
 	}
 
-	public Peer(int peerID, String peerIP, int peerPortNumber) {
-		this.peerID = peerID;
-		this.peerIP = peerIP;
-		this.peerPortNumber = peerPortNumber;
-	}
-
-	public Peer(String peerIP, int peerPortNumber) {
-		this.peerIP = peerIP;
-		this.peerPortNumber = peerPortNumber;
-	}
-
-	public Peer(String peerID, String peerIP, String peerPortNumber) {
-		this.peerID = Integer.parseInt(peerID);
-		this.peerIP = peerIP;
-		this.peerPortNumber = Integer.parseInt(peerPortNumber);
-	}
-
 	/**
 	 * @return the peerID
 	 */

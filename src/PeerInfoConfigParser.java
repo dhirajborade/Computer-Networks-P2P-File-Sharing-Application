@@ -130,8 +130,8 @@ public class PeerInfoConfigParser {
 				if (tokens.length != 4) {
 					throw new ParseException(inputLine, i);
 				}
-				// final boolean peerHasFile = (tokens[3].trim().compareTo("1") == 0);
-				peerInfoVector.add(new Peer(tokens[0].trim(), tokens[1].trim(), tokens[2].trim()));
+				final boolean peerHasFile = (tokens[3].trim().compareTo("1") == 0);
+				peerInfoVector.add(new Peer(tokens[0].trim(), tokens[1].trim(), tokens[2].trim(), peerHasFile));
 				i++;
 				setTotalPeers(getTotalPeers() + 1);
 			}
@@ -153,15 +153,16 @@ public class PeerInfoConfigParser {
 			while ((line = pireader.readLine()) != null) {
 				tokens = line.split(" ");
 				lastPeerID = Integer.parseInt(tokens[0]);
+				final boolean peerHasFile = (tokens[3].trim().compareTo("1") == 0);
 				if (!tokens[0].equals(peerID)) {
 					System.out.println("t:" + tokens[0] + " " + tokens[1] + " " + tokens[2]);
-					Peer peer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));
+					Peer peer = new Peer(tokens[0], tokens[1], tokens[2], peerHasFile);
 					if (Integer.parseInt(tokens[3]) == 0) {
 						peer.setHandShakeDone(false);
 					}
 					p.peerInfoVector.add(peer);
 				} else {
-					currentPeer = new Peer(Integer.parseInt(tokens[0]), tokens[1], Integer.parseInt(tokens[2]));
+					currentPeer = new Peer(tokens[0], tokens[1], tokens[2], peerHasFile);
 					currentPeerNo = p.peerInfoVector.size();
 					if (Integer.parseInt(tokens[3]) == 1) {
 						p.isFilePresent = true;
