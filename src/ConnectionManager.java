@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Random;
 import java.util.Vector;
 
@@ -465,9 +463,6 @@ public class ConnectionManager extends Thread {
 		}
 	}
 
-	/**
-	 *
-	 */
 	private void choke(Peer p) {
 		try {
 			peerProc.bql.put("Peer " + PeerProcess.currentPeer.getPeerID() + " is choked by " + p.getPeerID() + ".");
@@ -476,58 +471,63 @@ public class ConnectionManager extends Thread {
 		}
 		peerProc.chokedFrom.add(p);
 		int indexOfPeer = peerProc.peerInfoVector.indexOf(p);
-		// reset the sentRequestMessageBy Piece array by comparing the
-		// bitfield array and request array
-		for (int i = 0; i < CommonPropertiesParser.getNumberOfPieces(); i++) {
-			if (PeerProcess.sentRequestMessageByPiece[indexOfPeer][i]) {
-				// check if piece received, if not reset the request message
-				// field
-				PeerProcess.sentRequestMessageByPiece[indexOfPeer][i] = false;
+		// reset the sentRequestMessageBy Piece array by comparing the bitfield array
+		// and request array
+		int indexI = 0;
+		while (indexI < CommonPropertiesParser.getNumberOfPieces()) {
+			if (!PeerProcess.sentRequestMessageByPiece[indexOfPeer][indexI]) {
+
+			} else {
+				// check if piece received, if not reset the request message field
+				PeerProcess.sentRequestMessageByPiece[indexOfPeer][indexI] = false;
 			}
+			indexI++;
 		}
 	}
 
-	/**
-	 * @param p
-	 */
-	private void unchoke(Peer p) {
+	private void unchoke(Peer peer) {
 		try {
-			peerProc.bql.put("Peer " + PeerProcess.currentPeer.getPeerID() + " is unchoked by " + p.getPeerID() + ".");
+			peerProc.bql
+					.put("Peer " + PeerProcess.currentPeer.getPeerID() + " is unchoked by " + peer.getPeerID() + ".");
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		peerProc.chokedFrom.remove(p);
+		peerProc.chokedFrom.remove(peer);
 
-		if (!peerProc.isFilePresent) {
-			// after receiving unchoke, check if this peer is interested in
-			// any
-			// of the pieces of the peerUnchokedFrom
-			// if interested, check if that piece is not requested to any
-			// other
-			// peer
-			List<Integer> interestedPieces = new ArrayList<Integer>();
-			for (int i = 0; i < CommonPropertiesParser.getNumberOfPieces(); i++) {
-				int bitPresent = PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), i);
-				int bitPresentAtPeerWeRequesting = PeerProcess.getBit(p.getBitfield(), i);
-				if (bitPresent == 0 && bitPresentAtPeerWeRequesting == 1) {
-					interestedPieces.add(i);
+		if (peerProc.isFilePresent) {
+
+		} else {
+			// after receiving unchoke, check if this peer is interested in any of the
+			// pieces of the peerUnchokedFrom
+			// if interested, check if that piece is not requested to any other peer
+			Vector<Integer> interestedPieces = new Vector<Integer>();
+			int indexI = 0;
+			while (indexI < CommonPropertiesParser.getNumberOfPieces()) {
+				int bitPresent = PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), indexI);
+				int bitPresentAtPeerWeRequesting = PeerProcess.getBit(peer.getBitfield(), indexI);
+				if (!(bitPresent == 0 && bitPresentAtPeerWeRequesting == 1)) {
+
+				} else {
+					interestedPieces.add(indexI);
 				}
+				indexI++;
 			}
-			if (interestedPieces.size() > 0) {
+			if (!(interestedPieces.size() > 0)) {
+
+			} else {
 				// select any one piece randomly
 				Random ran = new Random();
 				int index = ran.nextInt(interestedPieces.size());
-				// peerProc.sentRequestMessageByPiece[indexOfPeer][index]
-				// =
-				// true;
-				sendRequest(p, interestedPieces.get(index));
+				sendRequest(peer, interestedPieces.get(index));
 			}
 		}
 	}
 
 	private void sendRequest(Peer p, int pieceIndex) {
-		if (PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), pieceIndex) == 0
-				&& PeerProcess.getBit(p.getBitfield(), pieceIndex) == 1) {
+		if (!(PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), pieceIndex) == 0
+				&& PeerProcess.getBit(p.getBitfield(), pieceIndex) == 1)) {
+
+		} else {
 			Message m = new Message(5, Byte.valueOf(Integer.toString(6)),
 					ByteBuffer.allocate(4).putInt(pieceIndex).array());
 
