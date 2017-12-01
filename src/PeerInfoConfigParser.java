@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Vector;
 
 /**
  *
@@ -23,9 +24,9 @@ public class PeerInfoConfigParser {
 	private static int totalPeers;
 	private static final String CONFIG_FILE_NAME = "PeerInfo.cfg";
 	private final String COMMENT_CHAR = "#";
-	private static final List<Peer> peerInfoVector = new ArrayList<Peer>();
+	private static Vector<Peer> peerInfoVector = new Vector<Peer>();
 	private static int lastPeerID;
-	private static int currentPeerNo = 0;
+	private static int currentPeerNo;
 	private static Peer currentPeer;
 
 	/**
@@ -33,6 +34,7 @@ public class PeerInfoConfigParser {
 	 */
 	public PeerInfoConfigParser() {
 		setTotalPeers(0);
+		this.setCurrentPeerNo(0);
 	}
 
 	/**
@@ -131,7 +133,7 @@ public class PeerInfoConfigParser {
 					throw new ParseException(inputLine, i);
 				}
 				final boolean peerHasFile = (tokens[3].trim().compareTo("1") == 0);
-				PeerInfoConfigParser.getPeerInfoVector().add(new Peer(tokens[0].trim(), tokens[1].trim(), tokens[2].trim(), peerHasFile));
+				peerInfoVector.add(new Peer(tokens[0].trim(), tokens[1].trim(), tokens[2].trim(), peerHasFile));
 				i++;
 				setTotalPeers(getTotalPeers() + 1);
 			}
