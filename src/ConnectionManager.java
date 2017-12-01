@@ -4,9 +4,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Random;
 import java.util.Vector;
 
@@ -29,9 +27,6 @@ public class ConnectionManager extends Thread {
 		this.setMessageRead(new MessageReader(this.getSocket(), peerProc));
 		this.setInitiateHandShake(initiateHandShake);
 		this.getPeer().setInterestedFromBitfield(new boolean[CommonPropertiesParser.getNumberOfPieces()]);
-		this.messageRead = new MessageReader(this.socket, peerProc);
-		this.initiateHandShake = initiateHandShake;
-		this.peer.setInterestedFromBitfield(new boolean[CommonPropertiesParser.getNumberOfPieces()]);
 		if (!this.isInitiateHandShake()) {
 
 		} else {
@@ -160,9 +155,9 @@ public class ConnectionManager extends Thread {
 	}
 
 	private void sendHandShake() throws IOException {
-		HandShake hs = new HandShake(PeerProcess.currentPeer.getPeerID());
+		HandShake handShake = new HandShake(PeerProcess.currentPeer.getPeerID());
 		try {
-			this.peerProc.blockingQueueMessageWriter.put(new MessageWriter(hs, new DataOutputStream(socket.getOutputStream())));
+			this.peerProc.bqm.put(new MessageWriter(handShake, new DataOutputStream(socket.getOutputStream())));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -182,9 +177,9 @@ public class ConnectionManager extends Thread {
 					if (ByteBuffer.wrap(handShakeMessage.getPeerID()).getInt() != this.peer.getPeerID()) {
 
 					} else {
-						if (initiateHandShake)
+						if (initiateHandShake) {
 							sendBitfield();
-						else {
+						} else {
 							sendHandShake();
 						}
 					}
@@ -217,8 +212,9 @@ public class ConnectionManager extends Thread {
 					} else if (messageType == 5) {
 						this.peer.setHandShakeDone(true);
 						this.peer.setBitfield(message.getPayload());
-						if (!initiateHandShake)
+						if (!initiateHandShake) {
 							sendBitfield();
+						}
 						if (!peerProc.isFilePresent) {
 							sendInterestedifApplicable();
 						}
@@ -265,7 +261,7 @@ public class ConnectionManager extends Thread {
 		if (peerProc.fileComplete) {
 
 		} else {
-			List<Integer> pieceIndex = new ArrayList<Integer>();
+			Vector<Integer> pieceIndex = new Vector<Integer>();
 			/*
 			 * Get list of all pieces not yet received and for which request has not yet
 			 * been sent
@@ -308,13 +304,14 @@ public class ConnectionManager extends Thread {
 		System.arraycopy(payload, 0, i, 0, 4);
 		int index = ByteBuffer.wrap(i).getInt();
 
-		if (PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), index) == 0) {
+		if (!(PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), index) == 0)) {
+
+		} else {
 			PeerProcess.setBit(PeerProcess.currentPeer.getBitfield(), index);
 			// if file complete set the bit
-
-			Iterator<Peer> iter = peerProc.peerInfoVector.iterator();
-			while (iter.hasNext()) {
-				Peer p = iter.next();
+			Iterator<Peer> iteratorPeer = peerProc.peerInfoVector.iterator();
+			while (iteratorPeer.hasNext()) {
+				Peer p = iteratorPeer.next();
 				if (!p.isHandShakeDone()) {
 
 				} else {
@@ -327,6 +324,7 @@ public class ConnectionManager extends Thread {
 					}
 				}
 			}
+
 			if (!peerProc.checkIfFullFileRecieved(PeerProcess.currentPeer)) {
 
 			} else {
@@ -336,10 +334,8 @@ public class ConnectionManager extends Thread {
 					peerProc.exit = true;
 				} catch (InterruptedException e) {
 					e.printStackTrace();
-
 				}
 			}
-
 		}
 	}
 
@@ -348,7 +344,7 @@ public class ConnectionManager extends Thread {
 
 		int indexI = 0;
 		while (indexI < CommonPropertiesParser.getNumberOfPieces()) {
-			if (PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), indexI) != 1) {
+			if (!(PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), indexI) == 1)) {
 
 			} else {
 				notInterestedIndices.addElement(indexI);
@@ -356,10 +352,12 @@ public class ConnectionManager extends Thread {
 			indexI++;
 		}
 
-		Iterator<Peer> iter = peerProc.peerInfoVector.iterator();
-		while (iter.hasNext()) {
-			Peer p = iter.next();
-			if (p.isHandShakeDone()) {
+		Iterator<Peer> iteratorPeer = peerProc.peerInfoVector.iterator();
+		while (iteratorPeer.hasNext()) {
+			Peer p = iteratorPeer.next();
+			if (!p.isHandShakeDone()) {
+
+			} else {
 				boolean amIInterestedInAnyPiecesOfThisPeer = false;
 				int indexJ = 0;
 				while (indexJ < CommonPropertiesParser.getNumberOfPieces()) {
@@ -390,7 +388,7 @@ public class ConnectionManager extends Thread {
 	private void processHaveMessage(Message message) throws IOException {
 		int index = ByteBuffer.wrap(message.getPayload()).getInt();
 
-		if (PeerProcess.getBit(this.peer.getBitfield(), index) != 0) {
+		if (!(PeerProcess.getBit(this.peer.getBitfield(), index) == 0)) {
 
 		} else {
 			PeerProcess.setBit(this.peer.getBitfield(), index);
@@ -412,10 +410,10 @@ public class ConnectionManager extends Thread {
 		} else {
 			byte[] piece = new byte[CommonPropertiesParser.getPieceSize() + 4];
 			System.arraycopy(message.getPayload(), 0, piece, 0, 4);
-			RandomAccessFile rafr = new RandomAccessFile(new File(CommonPropertiesParser.getFileName()), "r");
-			rafr.seek(peerProc.pieceMatrix[index][0]);
-			rafr.readFully(piece, 4, peerProc.pieceMatrix[index][1]);
-			rafr.close();
+			RandomAccessFile randAccessFile = new RandomAccessFile(new File(CommonPropertiesParser.getFileName()), "r");
+			randAccessFile.seek(peerProc.pieceMatrix[index][0]);
+			randAccessFile.readFully(piece, 4, peerProc.pieceMatrix[index][1]);
+			randAccessFile.close();
 			Message mpiece = new Message(CommonPropertiesParser.getPieceSize() + 5, Byte.valueOf(Integer.toString(7)),
 					piece);
 			try {
@@ -427,29 +425,29 @@ public class ConnectionManager extends Thread {
 	}
 
 	private void writePieceToFile(byte[] payload) throws IOException {
-		byte[] i = new byte[4];
-		System.arraycopy(payload, 0, i, 0, 4);
-		int index = ByteBuffer.wrap(i).getInt();
+		byte[] tempIndex = new byte[4];
+		System.arraycopy(payload, 0, tempIndex, 0, 4);
+		int index = ByteBuffer.wrap(tempIndex).getInt();
 		byte[] piece = new byte[peerProc.pieceMatrix[index][1]];
 		System.arraycopy(payload, 4, piece, 0, peerProc.pieceMatrix[index][1]);
-		RandomAccessFile rafw = new RandomAccessFile(new File(CommonPropertiesParser.getFileName()), "rw");
-		rafw.seek(peerProc.pieceMatrix[index][0]);
-		rafw.write(piece, 0, peerProc.pieceMatrix[index][1]);
-		rafw.close();
-
-		int nop = 0;
-		int indexJ = 0;
-		while (indexJ < CommonPropertiesParser.getNumberOfPieces()) {
-			if (PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), indexJ) != 1) {
+		RandomAccessFile randAccessFile = new RandomAccessFile(new File(CommonPropertiesParser.getFileName()), "rw");
+		randAccessFile.seek(peerProc.pieceMatrix[index][0]);
+		randAccessFile.write(piece, 0, peerProc.pieceMatrix[index][1]);
+		randAccessFile.close();
+    
+		int noOperation = 0;
+		int indexI = 0;
+		while (indexI < CommonPropertiesParser.getNumberOfPieces()) {
+			if (!(PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), indexI) == 1)) {
 
 			} else {
-				nop++;
+				noOperation++;
 			}
-			indexJ++;
+			indexI++;
 		}
 		try {
-			peerProc.blockingQueueLogWriter.put("Peer " + PeerProcess.currentPeer.getPeerID() + " has downloaded the piece " + index
-					+ " from " + this.peer.getPeerID() + ". Now the number of pieces it has is " + (nop + 1));
+			peerProc.bql.put("Peer " + PeerProcess.currentPeer.getPeerID() + " has downloaded the piece " + index
+					+ " from " + this.peer.getPeerID() + ". Now the number of pieces it has is " + (noOperation + 1));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -473,58 +471,56 @@ public class ConnectionManager extends Thread {
 		}
 		peerProc.chokedFrom.add(p);
 		int indexOfPeer = peerProc.peerInfoVector.indexOf(p);
-		// reset the sentRequestMessageBy Piece array by comparing the
-		// bitfield array and request array
-		int i = 0;
-		while (i < CommonPropertiesParser.getNumberOfPieces()) {
-			if (!PeerProcess.sentRequestMessageByPiece[indexOfPeer][i]) {
+    
+		// reset the sentRequestMessageBy Piece array by comparing the bitfield array
+		// and request array
+		int indexI = 0;
+		while (indexI < CommonPropertiesParser.getNumberOfPieces()) {
+			if (!PeerProcess.sentRequestMessageByPiece[indexOfPeer][indexI]) {
 
 			} else {
-				// check if piece received, if not reset the request message
-				// field
-				PeerProcess.sentRequestMessageByPiece[indexOfPeer][i] = false;
+				// check if piece received, if not reset the request message field
+				PeerProcess.sentRequestMessageByPiece[indexOfPeer][indexI] = false;
 			}
-			i++;
+			indexI++;
 		}
 	}
 
-	private void unchoke(Peer p) {
+	private void unchoke(Peer peer) {
 		try {
-			peerProc.blockingQueueLogWriter.put("Peer " + PeerProcess.currentPeer.getPeerID() + " is unchoked by " + p.getPeerID() + ".");
+			peerProc.bql
+					.put("Peer " + PeerProcess.currentPeer.getPeerID() + " is unchoked by " + peer.getPeerID() + ".");
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		peerProc.chokedFrom.remove(p);
+		peerProc.chokedFrom.remove(peer);
 
 		if (peerProc.isFilePresent) {
 
 		} else {
-			// after receiving unchoke, check if this peer is interested in
-						// any
-						// of the pieces of the peerUnchokedFrom
-						// if interested, check if that piece is not requested to any
-						// other
-						// peer
-						Vector<Integer> interestedPieces = new Vector<Integer>();
-						int indexI = 0;
-						while (indexI < CommonPropertiesParser.getNumberOfPieces()) {
-							int bitPresent = PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), indexI);
-							int bitPresentAtPeerWeRequesting = PeerProcess.getBit(p.getBitfield(), indexI);
-							if (!(bitPresent == 0 && bitPresentAtPeerWeRequesting == 1)) {
+			// after receiving unchoke, check if this peer is interested in any of the
+			// pieces of the peerUnchokedFrom
+			// if interested, check if that piece is not requested to any other peer
+			Vector<Integer> interestedPieces = new Vector<Integer>();
+			int indexI = 0;
+			while (indexI < CommonPropertiesParser.getNumberOfPieces()) {
+				int bitPresent = PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), indexI);
+				int bitPresentAtPeerWeRequesting = PeerProcess.getBit(peer.getBitfield(), indexI);
+				if (!(bitPresent == 0 && bitPresentAtPeerWeRequesting == 1)) {
 
-							} else {
-								interestedPieces.addElement(indexI);
-							}
-							indexI++;
-						}
-						if (!(interestedPieces.size() > 0)) {
+				} else {
+					interestedPieces.add(indexI);
+				}
+				indexI++;
+			}
+			if (!(interestedPieces.size() > 0)) {
 
-						} else {
-							// select any one piece randomly
-							Random rand = new Random();
-							int index = rand.nextInt(interestedPieces.size());
-							sendRequest(p, interestedPieces.get(index));
-						}
+			} else {
+				// select any one piece randomly
+				Random ran = new Random();
+				int index = ran.nextInt(interestedPieces.size());
+				sendRequest(peer, interestedPieces.get(index));
+			}
 		}
 	}
 
