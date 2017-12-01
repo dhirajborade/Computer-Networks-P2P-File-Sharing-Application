@@ -51,7 +51,7 @@ public class MessageWriter {
 
 	public void writeObject() throws IOException {
 		ByteArrayOutputStream bos = new ByteArrayOutputStream();
-		System.out.println("Sending Message :" + this.getMessage());
+		System.out.println("Sending Message : " + this.getMessage());
 		if (this.getMessage() instanceof HandShake) {
 			HandShake handShakeMessage = (HandShake) this.getMessage();
 			bos.write(handShakeMessage.getHeader(), 0, handShakeMessage.getHeader().length);
