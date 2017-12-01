@@ -41,12 +41,12 @@ public class PeerProcess {
 
 	public Vector<Peer> peerInfoVector;
 	int noOfPeers;
-//	public boolean isFilePresent;
+	public boolean isFilePresent;
 	ServerSocket serverSocket;
 	DateFormat sdf;
 	File logfile;
 	public HashSet<Peer> chokedFrom;
-	public HashSet<Peer> PreferedNeighbours;
+	public HashSet<Peer> preferredNeighbors;
 	public HashSet<Peer> NewPrefNeighbors;
 	public HashSet<Peer> sendUnchokePrefNeig;
 	public Peer optimisticallyUnchokedNeighbor;

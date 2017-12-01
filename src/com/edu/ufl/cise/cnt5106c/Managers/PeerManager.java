@@ -124,7 +124,7 @@ public class PeerManager implements Runnable {
 
 							} else {
 								// check if not a preferred neighbor then only send choke message
-								if (!(peerProc.PreferedNeighbours != null && !peerProc.PreferedNeighbours
+								if (!(peerProc.preferredNeighbors != null && !peerProc.preferredNeighbors
 										.contains(peerProc.optimisticallyUnchokedNeighbor))) {
 
 								} else {
@@ -209,31 +209,31 @@ public class PeerManager implements Runnable {
 								// send unchoke only to the new ones
 								peerProc.sendUnchokePrefNeig = new HashSet<>();
 								// deep copying list
-								if (!(peerProc.PreferedNeighbours == null)) {
+								if (!(peerProc.preferredNeighbors == null)) {
 
 								} else {
-									peerProc.PreferedNeighbours = new HashSet<>();
+									peerProc.preferredNeighbors = new HashSet<>();
 								}
 								Iterator<Peer> iteratorPeerA = peerProc.NewPrefNeighbors.iterator();
 								while (iteratorPeerA.hasNext()) {
 									Peer p = iteratorPeerA.next();
-									if (peerProc.PreferedNeighbours.contains(p)) {
+									if (peerProc.preferredNeighbors.contains(p)) {
 
 									} else {
 										peerProc.sendUnchokePrefNeig.add(p);
 									}
 								}
-								peerProc.sendUnchokePrefNeig.removeAll(peerProc.PreferedNeighbours);
+								peerProc.sendUnchokePrefNeig.removeAll(peerProc.preferredNeighbors);
 								// send choke messages to other who are not present in the new list of preferred
 								// neighbors
-								peerProc.PreferedNeighbours.removeAll(peerProc.NewPrefNeighbors);
-								peerProc.sendChokeMessage(peerProc.PreferedNeighbours);
+								peerProc.preferredNeighbors.removeAll(peerProc.NewPrefNeighbors);
+								peerProc.sendChokeMessage(peerProc.preferredNeighbors);
 								peerProc.sendUnChokeMessage(new HashSet<>(peerProc.sendUnchokePrefNeig));
-								peerProc.PreferedNeighbours = peerProc.NewPrefNeighbors;
+								peerProc.preferredNeighbors = peerProc.NewPrefNeighbors;
 
 								String peerIdList = "";
 
-								Iterator<Peer> iteratorPeerB = peerProc.PreferedNeighbours.iterator();
+								Iterator<Peer> iteratorPeerB = peerProc.preferredNeighbors.iterator();
 								while (iteratorPeerB.hasNext()) {
 									Peer p = iteratorPeerB.next();
 									peerIdList = p.getPeerID() + ",";
