@@ -41,7 +41,7 @@ public class PeerProcess {
 
 	public Vector<Peer> peerInfoVector;
 	int noOfPeers;
-	public boolean isFilePresent;
+//	public boolean isFilePresent;
 	ServerSocket serverSocket;
 	DateFormat sdf;
 	File logfile;
@@ -58,7 +58,6 @@ public class PeerProcess {
 	public BlockingQueue<MessageWriter> blockingQueueMessages;
 	public BlockingQueue<String> blockingQueueLogging;
 	public HashMap<Peer, Socket> peerSocketMap;
-	//int[][] pieceMatrix;
 	public final Object inputSynchronize = new Object();
 	Future<?> prefNeighborTask;
 	Future<?> optimisticallyUnchokeNeighborTask;

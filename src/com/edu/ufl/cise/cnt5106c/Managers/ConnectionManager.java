@@ -230,7 +230,7 @@ public class ConnectionManager implements Runnable {
 						if (!initiateHandShake) {
 							sendBitfield();
 						}
-						if (!peerProc.isFilePresent) {
+						if (!this.peer.isFilePresent()) {
 							sendInterestedifApplicable();
 						}
 					} else if (messageType == MessageType.REQUEST) {
@@ -513,7 +513,7 @@ public class ConnectionManager implements Runnable {
 		}
 		peerProc.chokedFrom.remove(peer);
 
-		if (peerProc.isFilePresent) {
+		if (this.peer.isFilePresent()) {
 
 		} else {
 			// after receiving unchoke, check if this peer is interested in any of the

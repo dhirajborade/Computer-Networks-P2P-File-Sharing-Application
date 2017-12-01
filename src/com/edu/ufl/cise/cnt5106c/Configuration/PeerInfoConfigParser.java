@@ -170,9 +170,9 @@ public class PeerInfoConfigParser {
 				} else {
 					PeerInfoConfigParser.setCurrentPeer(new Peer(tokens[0], tokens[1], tokens[2], peerHasFile));
 					this.setCurrentPeerNo(peerProc.peerInfoVector.size());
-					if (Integer.parseInt(tokens[3]) == 1) {
-						peerProc.isFilePresent = true;
-					}
+//					if (Integer.parseInt(tokens[3]) == 1) {
+//						peerProc.isFilePresent = true;
+//					}
 				}
 			}
 		} finally {
@@ -195,7 +195,7 @@ public class PeerInfoConfigParser {
 				peerProc.peerInfoVector.addElement(peer);
 			} else {
 				PeerInfoConfigParser.setCurrentPeer(tempPeer);
-				if (peerProc.isFilePresent) {
+				if (tempPeer.isFilePresent()) {
 					peerProc.copyFileUsingStream(
 							new String(System.getProperty("user.dir") + "/" + CommonPropertiesParser.getFileName()),
 							new String(System.getProperty("user.dir") + "/peer_" + peerID + "/"
