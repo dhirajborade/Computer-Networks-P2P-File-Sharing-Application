@@ -343,29 +343,40 @@ public class ConnectionManager extends Thread {
 		}
 	}
 
-	// TODO
 	private void sendNotInterestedToSomeNeighbours() throws IOException {
-		List<Integer> NIIndices = new ArrayList<Integer>();
+		Vector<Integer> notInterestedIndices = new Vector<Integer>();
 
-		for (int i = 0; i < CommonPropertiesParser.getNumberOfPieces(); i++) {
-			if (PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), i) == 1)
-				NIIndices.add(i);
+		int indexI = 0;
+		while (indexI < CommonPropertiesParser.getNumberOfPieces()) {
+			if (!(PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), indexI) == 1)) {
+
+			} else {
+				notInterestedIndices.addElement(indexI);
+			}
+			indexI++;
 		}
 
-		for (Peer p : peerProc.peerInfoVector) {
-			if (p.isHandShakeDone()) {
-				boolean amIInterestedInAnyPiecesOfThisPeer = false;
-				for (int j = 0; j < CommonPropertiesParser.getNumberOfPieces(); j++) {
-					if (PeerProcess.getBit(p.getBitfield(), j) == 1 && !NIIndices.contains(j)
-							&& !PeerProcess.sentRequestMessageByPiece[peerProc.peerInfoVector.indexOf(p)][j]) {
-						{
-							amIInterestedInAnyPiecesOfThisPeer = true;
-							break;
-						}
-					}
+		Iterator<Peer> iteratorPeer = peerProc.peerInfoVector.iterator();
+		while (iteratorPeer.hasNext()) {
+			Peer p = iteratorPeer.next();
+			if (!p.isHandShakeDone()) {
 
+			} else {
+				boolean amIInterestedInAnyPiecesOfThisPeer = false;
+				int indexJ = 0;
+				while (indexJ < CommonPropertiesParser.getNumberOfPieces()) {
+					if (!(PeerProcess.getBit(p.getBitfield(), indexJ) == 1 && !notInterestedIndices.contains(indexJ)
+							&& !PeerProcess.sentRequestMessageByPiece[peerProc.peerInfoVector.indexOf(p)][indexJ])) {
+
+					} else {
+						amIInterestedInAnyPiecesOfThisPeer = true;
+						break;
+					}
+					indexJ++;
 				}
-				if (!amIInterestedInAnyPiecesOfThisPeer) {
+				if (amIInterestedInAnyPiecesOfThisPeer) {
+
+				} else {
 					Message notinterested = new Message(1, Byte.valueOf(Integer.toString(3)), null);
 					try {
 						peerProc.bqm.put(new MessageWriter(notinterested,
@@ -378,12 +389,6 @@ public class ConnectionManager extends Thread {
 		}
 	}
 
-	/**
-	 * @param message
-	 * @throws IOException
-	 *
-	 *
-	 */
 	private void processHaveMessage(Message message) throws IOException {
 		int index = ByteBuffer.wrap(message.getPayload()).getInt();
 
