@@ -172,10 +172,11 @@ public class PeerProcess {
 	public void createServerSocket(int portNo) {
 		ExecutorService exec = Executors.newFixedThreadPool(4);
 		try {
-			prefNeighborTask = exec.submit(new PrefferedNeighborsThread(PeerProcess.this));
-			optimisticallyUnchokeNeighborTask = exec.submit(new OptimisticallyUnchokedNeighborThread(PeerProcess.this));
+//			prefNeighborTask = exec.submit(new PrefferedNeighborsThread(PeerProcess.this));
+//			optimisticallyUnchokeNeighborTask = exec.submit(new OptimisticallyUnchokedNeighborThread(PeerProcess.this));
 			messageQueueTask = exec.submit(new MessageQueueProcess(PeerProcess.this));
 			logManagerTask = exec.submit(new LogManager(PeerProcess.this.bql, logger, this));
+			new Thread(new PeerManager(this)).start();
 
 			int peerCompleteFileReceived = 0;
 			serverSocket = new ServerSocket(portNo);
@@ -231,8 +232,8 @@ public class PeerProcess {
 			try {
 
 				for (; !exec.isTerminated();) {
-					prefNeighborTask.cancel(false);
-					optimisticallyUnchokeNeighborTask.cancel(false);
+//					prefNeighborTask.cancel(false);
+//					optimisticallyUnchokeNeighborTask.cancel(false);
 					for (; !bqm.isEmpty();) {
 					}
 					for (; !bql.isEmpty();) {
