@@ -6,6 +6,8 @@ public class Message implements Serializable {
 	private int length;
 	private byte type;
 	private byte[] payload;
+	private MessageType messageType;
+	private Payload msgPayload;
 
 	public Message() {
 		super();
@@ -15,6 +17,14 @@ public class Message implements Serializable {
 		this.setLength(length);
 		this.setType(type);
 		this.setPayload(payload);
+		setMsgType(type);
+	}
+
+	public Message(int length, byte type, Payload payload, Object dummyObj) {
+		this.setLength(length);
+		this.setType(type);
+		this.setPayload(payload.getPayload());
+		setMsgType(type);
 	}
 
 	/**
@@ -69,9 +79,68 @@ public class Message implements Serializable {
 		return serialVersionUID;
 	}
 
+	public void setMsgType(byte type) {
+		switch ((int) type) {
+		case 0:
+			this.setMessageType(MessageType.CHOKE);
+			break;
+		case 1:
+			this.setMessageType(MessageType.UNCHOKE);
+			break;
+		case 2:
+			this.setMessageType(MessageType.INTERESTED);
+			break;
+		case 3:
+			this.setMessageType(MessageType.NOT_INTERESTED);
+			break;
+		case 4:
+			this.setMessageType(MessageType.HAVE);
+			break;
+		case 5:
+			this.setMessageType(MessageType.BITFIELD);
+			break;
+		case 6:
+			this.setMessageType(MessageType.REQUEST);
+			break;
+		case 7:
+			this.setMessageType(MessageType.PIECE);
+			break;
+		}
+	}
+
+	/**
+	 * @return the messageType
+	 */
+	public MessageType getMessageType() {
+		return messageType;
+	}
+
+	/**
+	 * @param messageType
+	 *            the messageType to set
+	 */
+	public void setMessageType(MessageType messageType) {
+		this.messageType = messageType;
+	}
+
+	/**
+	 * @return the msgPayload
+	 */
+	public Payload getMsgPayload() {
+		return msgPayload;
+	}
+
+	/**
+	 * @param msgPayload
+	 *            the msgPayload to set
+	 */
+	public void setMsgPayload(Payload msgPayload) {
+		this.msgPayload = msgPayload;
+	}
+
 	@Override
 	public String toString() {
-		return "Message [length=" + this.getLength() + ", type=" + Byte.toUnsignedInt(this.getType()) + "]";
+		return "Message [length=" + this.getLength() + ", type=" + this.getMessageType() + "]";
 	}
 
 }
