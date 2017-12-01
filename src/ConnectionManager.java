@@ -157,7 +157,8 @@ public class ConnectionManager implements Runnable {
 	private void sendHandShake() throws IOException {
 		HandShake handShake = new HandShake(PeerInfoConfigParser.getCurrentPeer().getPeerID());
 		try {
-			this.peerProc.blockingQueueMessages.put(new MessageWriter(handShake, new DataOutputStream(socket.getOutputStream())));
+			this.peerProc.blockingQueueMessages
+					.put(new MessageWriter(handShake, new DataOutputStream(socket.getOutputStream())));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -186,30 +187,32 @@ public class ConnectionManager implements Runnable {
 				} else if (obj instanceof Message) {
 					Message message = (Message) obj;
 					System.out.println(message);
-					int messageType = Byte.toUnsignedInt(message.getType());
-					if (messageType == 0) {
+					MessageType messageType = message.getMessageType();
+					if (messageType == MessageType.CHOKE) {
 						choke(this.peer);
-					} else if (messageType == 1) {
+					} else if (messageType == MessageType.UNCHOKE) {
 						unchoke(this.peer);
-					} else if (messageType == 2) {
+					} else if (messageType == MessageType.INTERESTED) {
 						this.peer.setInterestedInPieces(true);
 						try {
-							peerProc.blockingQueueLogging.put("Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID()
-									+ " received the 'interested' message from " + this.peer.getPeerID());
+							peerProc.blockingQueueLogging
+									.put("Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID()
+											+ " received the 'interested' message from " + this.peer.getPeerID());
 						} catch (InterruptedException e1) {
 							e1.printStackTrace();
 						}
-					} else if (messageType == 3) {
+					} else if (messageType == MessageType.NOT_INTERESTED) {
 						this.peer.setInterestedInPieces(false);
 						try {
-							peerProc.blockingQueueLogging.put("Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID()
-									+ " received the 'not interested' message from " + this.peer.getPeerID());
+							peerProc.blockingQueueLogging
+									.put("Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID()
+											+ " received the 'not interested' message from " + this.peer.getPeerID());
 						} catch (InterruptedException e) {
 							e.printStackTrace();
 						}
-					} else if (messageType == 4) {
+					} else if (messageType == MessageType.HAVE) {
 						processHaveMessage(message);
-					} else if (messageType == 5) {
+					} else if (messageType == MessageType.BITFIELD) {
 						this.peer.setHandShakeDone(true);
 						this.peer.setBitfield(message.getPayload());
 						if (!initiateHandShake) {
@@ -218,9 +221,9 @@ public class ConnectionManager implements Runnable {
 						if (!peerProc.isFilePresent) {
 							sendInterestedifApplicable();
 						}
-					} else if (messageType == 6) {
+					} else if (messageType == MessageType.REQUEST) {
 						processRequest(message);
-					} else if (messageType == 7) {
+					} else if (messageType == MessageType.PIECE) {
 						processPieceMessage(message);
 					}
 				}
@@ -244,7 +247,8 @@ public class ConnectionManager implements Runnable {
 				Message interested = new Message(1, Byte.valueOf(Integer.toString(2)), null);
 				this.peer.getInterestedFromBitfield()[indexI] = true;
 				try {
-					peerProc.blockingQueueMessages.put(new MessageWriter(interested, new DataOutputStream(socket.getOutputStream())));
+					peerProc.blockingQueueMessages
+							.put(new MessageWriter(interested, new DataOutputStream(socket.getOutputStream())));
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
@@ -319,7 +323,8 @@ public class ConnectionManager implements Runnable {
 					Message have = new Message(5, Byte.valueOf(Integer.toString(4)), i);
 					this.socket = peerProc.peerSocketMap.get(p);
 					try {
-						peerProc.blockingQueueMessages.put(new MessageWriter(have, new DataOutputStream(socket.getOutputStream())));
+						peerProc.blockingQueueMessages
+								.put(new MessageWriter(have, new DataOutputStream(socket.getOutputStream())));
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
@@ -330,8 +335,8 @@ public class ConnectionManager implements Runnable {
 
 			} else {
 				try {
-					peerProc.blockingQueueLogging
-							.put("Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID() + " has downloaded the complete file.");
+					peerProc.blockingQueueLogging.put("Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID()
+							+ " has downloaded the complete file.");
 					peerProc.exit = true;
 				} catch (InterruptedException e) {
 					e.printStackTrace();
@@ -396,8 +401,8 @@ public class ConnectionManager implements Runnable {
 		}
 
 		try {
-			peerProc.blockingQueueLogging.put("Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID() + " received the 'have' message from "
-					+ this.peer.getPeerID() + " for the piece " + index + ".");
+			peerProc.blockingQueueLogging.put("Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID()
+					+ " received the 'have' message from " + this.peer.getPeerID() + " for the piece " + index + ".");
 		} catch (InterruptedException e1) {
 			e1.printStackTrace();
 		}
@@ -416,7 +421,8 @@ public class ConnectionManager implements Runnable {
 			Message mpiece = new Message(CommonPropertiesParser.getPieceSize() + 5, Byte.valueOf(Integer.toString(7)),
 					piece);
 			try {
-				peerProc.blockingQueueMessages.put(new MessageWriter(mpiece, new DataOutputStream(socket.getOutputStream())));
+				peerProc.blockingQueueMessages
+						.put(new MessageWriter(mpiece, new DataOutputStream(socket.getOutputStream())));
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -445,16 +451,17 @@ public class ConnectionManager implements Runnable {
 			indexI++;
 		}
 		try {
-			peerProc.blockingQueueLogging.put("Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID() + " has downloaded the piece " + index
-					+ " from " + this.peer.getPeerID() + ". Now the number of pieces it has is " + (noOperation + 1));
+			peerProc.blockingQueueLogging.put("Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID()
+					+ " has downloaded the piece " + index + " from " + this.peer.getPeerID()
+					+ ". Now the number of pieces it has is " + (noOperation + 1));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
 	}
 
 	private void sendBitfield() throws IOException {
-		Message m = new Message(PeerInfoConfigParser.getCurrentPeer().getBitfield().length + 1, Byte.valueOf(Integer.toString(5)),
-				PeerInfoConfigParser.getCurrentPeer().getBitfield());
+		Message m = new Message(PeerInfoConfigParser.getCurrentPeer().getBitfield().length + 1,
+				Byte.valueOf(Integer.toString(5)), PeerInfoConfigParser.getCurrentPeer().getBitfield());
 		try {
 			peerProc.blockingQueueMessages.put(new MessageWriter(m, new DataOutputStream(socket.getOutputStream())));
 		} catch (InterruptedException e) {
@@ -464,7 +471,8 @@ public class ConnectionManager implements Runnable {
 
 	private void choke(Peer p) {
 		try {
-			peerProc.blockingQueueLogging.put("Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID() + " is choked by " + p.getPeerID() + ".");
+			peerProc.blockingQueueLogging.put("Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID()
+					+ " is choked by " + p.getPeerID() + ".");
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -486,8 +494,8 @@ public class ConnectionManager implements Runnable {
 
 	private void unchoke(Peer peer) {
 		try {
-			peerProc.blockingQueueLogging
-					.put("Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID() + " is unchoked by " + peer.getPeerID() + ".");
+			peerProc.blockingQueueLogging.put("Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID()
+					+ " is unchoked by " + peer.getPeerID() + ".");
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -531,7 +539,8 @@ public class ConnectionManager implements Runnable {
 					ByteBuffer.allocate(4).putInt(pieceIndex).array());
 
 			try {
-				peerProc.blockingQueueMessages.put(new MessageWriter(m, new DataOutputStream(socket.getOutputStream())));
+				peerProc.blockingQueueMessages
+						.put(new MessageWriter(m, new DataOutputStream(socket.getOutputStream())));
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
