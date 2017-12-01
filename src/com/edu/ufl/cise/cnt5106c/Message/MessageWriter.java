@@ -58,17 +58,14 @@ public class MessageWriter {
 			bos.write(handShakeMessage.getZeroBits(), 0, handShakeMessage.getZeroBits().length);
 			bos.write(handShakeMessage.getPeerID(), 0, handShakeMessage.getPeerID().length);
 		} else {
-			System.out.println(this.getOutStream().size());
 			bos.write(ByteBuffer.allocate(4).putInt(this.getMessage().getLength()).array(), 0, 4);
 			bos.write(new byte[] { this.getMessage().getType() }, 0, 1);
 			if (!((this.getMessage().getPayload() != null) && (this.getMessage().getPayload().length > 0))) {
 
 			} else {
-				System.out.println("Payload Length to be sent:" + this.getMessage().getPayload().length);
 				bos.write(this.getMessage().getPayload(), 0, this.getMessage().getPayload().length);
 			}
 		}
-		System.out.println("Writing Buffer Size:" + bos.size());
 		this.getOutStream().write(bos.toByteArray());
 		this.getOutStream().flush();
 	}
