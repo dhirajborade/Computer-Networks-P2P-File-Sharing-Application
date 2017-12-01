@@ -167,11 +167,9 @@ public class PeerProcess {
 	public void createServerSocket(int portNo) {
 		ExecutorService exec = Executors.newFixedThreadPool(4);
 		try {
-//			prefNeighborTask = exec.submit(new PrefferedNeighborsThread(PeerProcess.this));
-//			optimisticallyUnchokeNeighborTask = exec.submit(new OptimisticallyUnchokedNeighborThread(PeerProcess.this));
+			new Thread(new PeerManager(this)).start();
 			messageQueueTask = exec.submit(new MessageQueueProcess(PeerProcess.this));
 			logManagerTask = exec.submit(new LogManager(PeerProcess.this.blockingQueueLogging, logger, this));
-			new Thread(new PeerManager(this)).start();
 
 			int peerCompleteFileReceived = 0;
 			serverSocket = new ServerSocket(portNo);
@@ -227,8 +225,6 @@ public class PeerProcess {
 			try {
 
 				for (; !exec.isTerminated();) {
-//					prefNeighborTask.cancel(false);
-//					optimisticallyUnchokeNeighborTask.cancel(false);
 					for (; !blockingQueueMessages.isEmpty();) {
 					}
 					for (; !blockingQueueLogging.isEmpty();) {
