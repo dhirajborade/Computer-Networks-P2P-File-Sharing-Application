@@ -84,7 +84,7 @@ public class OptimisticallyUnchokedNeighborThread implements Runnable {
 							.get(ran.nextInt(this.getInterestedPeers().size()));
 					this.getPeerProc().sendUnChokeMessage(
 							new HashSet<>(Arrays.asList(this.getPeerProc().optimisticallyUnchokedNeighbor)));
-					this.getPeerProc().bql.put(
+					this.getPeerProc().blockingQueueLogging.put(
 							"Peer " + PeerProcess.currentPeer.getPeerID() + " has the optimistically unchoked neighbor "
 									+ this.getPeerProc().optimisticallyUnchokedNeighbor.getPeerID() + ".");
 				}

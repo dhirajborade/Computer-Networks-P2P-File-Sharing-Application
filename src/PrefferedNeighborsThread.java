@@ -112,7 +112,7 @@ public class PrefferedNeighborsThread implements Runnable {
 							Peer p = iteratorPeerB.next();
 							peerIdList = p.getPeerID() + ",";
 						}
-						this.getPeerProc().bql
+						this.getPeerProc().blockingQueueLogging
 								.put("Peer " + PeerProcess.currentPeer.getPeerID() + " has the preferred neighbors "
 										+ peerIdList.substring(0, peerIdList.length() - 1) + ".");
 					}

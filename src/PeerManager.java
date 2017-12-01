@@ -131,7 +131,7 @@ public class PeerManager implements Runnable {
 									.get(ran.nextInt(interestedPeers.size()));
 							peerProc.sendUnChokeMessage(
 									new HashSet<>(Arrays.asList(peerProc.optimisticallyUnchokedNeighbor)));
-							peerProc.bql.put("Peer " + PeerProcess.currentPeer.getPeerID()
+							peerProc.blockingQueueLogging.put("Peer " + PeerProcess.currentPeer.getPeerID()
 									+ " has the optimistically unchoked neighbor "
 									+ peerProc.optimisticallyUnchokedNeighbor.getPeerID() + ".");
 						}
@@ -232,7 +232,7 @@ public class PeerManager implements Runnable {
 									Peer p = iteratorPeerB.next();
 									peerIdList = p.getPeerID() + ",";
 								}
-								peerProc.bql.put(
+								peerProc.blockingQueueLogging.put(
 										"Peer " + PeerProcess.currentPeer.getPeerID() + " has the preferred neighbors "
 												+ peerIdList.substring(0, peerIdList.length() - 1) + ".");
 							}
