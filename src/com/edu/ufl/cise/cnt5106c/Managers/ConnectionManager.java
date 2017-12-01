@@ -1,10 +1,12 @@
 package com.edu.ufl.cise.cnt5106c.Managers;
+
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Vector;
@@ -30,6 +32,7 @@ public class ConnectionManager implements Runnable {
 	private long startTime;
 	private long endTime;
 	private PeerProcess peerProc;
+	public HashSet<Peer> chokedFrom;
 
 	public ConnectionManager(PeerProcess peerProc, Peer peer, boolean initiateHandShake) throws IOException {
 		this.setPeerProc(peerProc);
@@ -39,6 +42,7 @@ public class ConnectionManager implements Runnable {
 		this.setMessageRead(new MessageReader(this.getSocket(), peerProc));
 		this.setInitiateHandShake(initiateHandShake);
 		this.getPeer().setInterestedFromBitfield(new boolean[CommonPropertiesParser.getNumberOfPieces()]);
+		this.chokedFrom = new HashSet<>();
 		if (!this.isInitiateHandShake()) {
 
 		} else {
@@ -380,7 +384,8 @@ public class ConnectionManager implements Runnable {
 				int indexJ = 0;
 				while (indexJ < CommonPropertiesParser.getNumberOfPieces()) {
 					if (!(PeerProcess.getBit(p.getBitfield(), indexJ) == 1 && !notInterestedIndices.contains(indexJ)
-							&& !CommonPropertiesParser.getSentRequestMessageByPiece()[peerProc.peerInfoVector.indexOf(p)][indexJ])) {
+							&& !CommonPropertiesParser.getSentRequestMessageByPiece()[peerProc.peerInfoVector
+									.indexOf(p)][indexJ])) {
 
 					} else {
 						amIInterestedInAnyPiecesOfThisPeer = true;
@@ -488,7 +493,7 @@ public class ConnectionManager implements Runnable {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		peerProc.chokedFrom.add(p);
+		chokedFrom.add(p);
 		int indexOfPeer = peerProc.peerInfoVector.indexOf(p);
 		// reset the sentRequestMessageBy Piece array by comparing the bitfield array
 		// and request array
@@ -511,7 +516,7 @@ public class ConnectionManager implements Runnable {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		peerProc.chokedFrom.remove(peer);
+		chokedFrom.remove(peer);
 
 		if (peerProc.isFilePresent) {
 
@@ -558,7 +563,8 @@ public class ConnectionManager implements Runnable {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			CommonPropertiesParser.getSentRequestMessageByPiece()[peerProc.peerInfoVector.indexOf(p)][pieceIndex] = true;
+			CommonPropertiesParser.getSentRequestMessageByPiece()[peerProc.peerInfoVector
+					.indexOf(p)][pieceIndex] = true;
 		}
 	}
 }

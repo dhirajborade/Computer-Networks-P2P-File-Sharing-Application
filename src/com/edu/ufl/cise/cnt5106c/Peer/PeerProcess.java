@@ -44,10 +44,9 @@ public class PeerProcess {
 	ServerSocket serverSocket;
 	DateFormat sdf;
 	File logfile;
-	public HashSet<Peer> chokedFrom;
 	public HashSet<Peer> preferredNeighbors;
-	public HashSet<Peer> NewPrefNeighbors;
-	public HashSet<Peer> sendUnchokePrefNeig;
+	public HashSet<Peer> newPreferredNeighbors;
+	public HashSet<Peer> sendUnchokePreferredNeighbors;
 	public Peer optimisticallyUnchokedNeighbor;
 	public PriorityQueue<DownloadingRate> unchokingIntervalWisePeerDownloadingRate;
 	Logger logger;
@@ -65,7 +64,6 @@ public class PeerProcess {
 	PeerProcess() {
 		sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		fileComplete = false;
-		chokedFrom = new HashSet<>();
 		peerSocketMap = new HashMap<>();
 		blockingQueueMessages = new LinkedBlockingQueue<MessageWriter>();
 		blockingQueueLogging = new LinkedBlockingQueue<String>();

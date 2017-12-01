@@ -162,7 +162,7 @@ public class PeerManager implements Runnable {
 						if (!(peerProc.peerInfoVector.size() > 0)) {
 
 						} else {
-							peerProc.NewPrefNeighbors = new HashSet<Peer>();
+							peerProc.newPreferredNeighbors = new HashSet<Peer>();
 							if (peerProc.unchokingIntervalWisePeerDownloadingRate.size() == 0) {
 
 								// as it is a new arraylist, this thread is run for the first time
@@ -170,11 +170,11 @@ public class PeerManager implements Runnable {
 								// thus select any random peers and add them to the preferred neighbors list
 								Random ran = new Random();
 								int indexI = 0;
-								while (indexI < peerProc.peerInfoVector.size() && peerProc.NewPrefNeighbors
+								while (indexI < peerProc.peerInfoVector.size() && peerProc.newPreferredNeighbors
 										.size() < CommonPropertiesParser.getNumberOfPreferredNeighbors()) {
 									Peer p = peerProc.peerInfoVector.get(ran.nextInt(peerProc.peerInfoVector.size()));
 									if (p.isInterestedInPieces()) {
-										peerProc.NewPrefNeighbors.add(p);
+										peerProc.newPreferredNeighbors.add(p);
 									}
 									indexI++;
 								}
@@ -186,7 +186,7 @@ public class PeerManager implements Runnable {
 								int indexI = 0;
 								while (indexI < CommonPropertiesParser.getNumberOfPreferredNeighbors()) {
 									if (!peerProc.unchokingIntervalWisePeerDownloadingRate.isEmpty()) {
-										peerProc.NewPrefNeighbors.add(
+										peerProc.newPreferredNeighbors.add(
 												peerProc.unchokingIntervalWisePeerDownloadingRate.poll().getPeer());
 									}
 									indexI++;
@@ -194,42 +194,42 @@ public class PeerManager implements Runnable {
 								// if the previous downloading rates list is less than preferred neighbors size
 
 								int indexJ = 0;
-								while (indexJ < peerProc.peerInfoVector.size() && peerProc.NewPrefNeighbors
+								while (indexJ < peerProc.peerInfoVector.size() && peerProc.newPreferredNeighbors
 										.size() < CommonPropertiesParser.getNumberOfPreferredNeighbors()) {
 									Peer p = peerProc.peerInfoVector.get(ran.nextInt(peerProc.peerInfoVector.size()));
 									if (p.isInterestedInPieces()) {
-										peerProc.NewPrefNeighbors.add(p);
+										peerProc.newPreferredNeighbors.add(p);
 									}
 									indexJ++;
 								}
 							}
-							if (!(peerProc.NewPrefNeighbors.size() > 0)) {
+							if (!(peerProc.newPreferredNeighbors.size() > 0)) {
 
 							} else {
 								// send unchoke only to the new ones
-								peerProc.sendUnchokePrefNeig = new HashSet<>();
+								peerProc.sendUnchokePreferredNeighbors = new HashSet<>();
 								// deep copying list
 								if (!(peerProc.preferredNeighbors == null)) {
 
 								} else {
 									peerProc.preferredNeighbors = new HashSet<>();
 								}
-								Iterator<Peer> iteratorPeerA = peerProc.NewPrefNeighbors.iterator();
+								Iterator<Peer> iteratorPeerA = peerProc.newPreferredNeighbors.iterator();
 								while (iteratorPeerA.hasNext()) {
 									Peer p = iteratorPeerA.next();
 									if (peerProc.preferredNeighbors.contains(p)) {
 
 									} else {
-										peerProc.sendUnchokePrefNeig.add(p);
+										peerProc.sendUnchokePreferredNeighbors.add(p);
 									}
 								}
-								peerProc.sendUnchokePrefNeig.removeAll(peerProc.preferredNeighbors);
+								peerProc.sendUnchokePreferredNeighbors.removeAll(peerProc.preferredNeighbors);
 								// send choke messages to other who are not present in the new list of preferred
 								// neighbors
-								peerProc.preferredNeighbors.removeAll(peerProc.NewPrefNeighbors);
+								peerProc.preferredNeighbors.removeAll(peerProc.newPreferredNeighbors);
 								peerProc.sendChokeMessage(peerProc.preferredNeighbors);
-								peerProc.sendUnChokeMessage(new HashSet<>(peerProc.sendUnchokePrefNeig));
-								peerProc.preferredNeighbors = peerProc.NewPrefNeighbors;
+								peerProc.sendUnChokeMessage(new HashSet<>(peerProc.sendUnchokePreferredNeighbors));
+								peerProc.preferredNeighbors = peerProc.newPreferredNeighbors;
 
 								String peerIdList = "";
 
