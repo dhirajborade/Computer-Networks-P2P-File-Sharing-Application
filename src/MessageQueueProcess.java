@@ -28,8 +28,8 @@ public class MessageQueueProcess implements Runnable {
 	public void run() {
 		try {
 			for (; !this.getPeerProcess().exit;) {
-				for (; !this.getPeerProcess().bqm.isEmpty();) {
-					MessageWriter ms = this.getPeerProcess().bqm.take();
+				for (; !this.getPeerProcess().blockingQueueMessageWriter.isEmpty();) {
+					MessageWriter ms = this.getPeerProcess().blockingQueueMessageWriter.take();
 					ms.writeObject();
 				}
 			}

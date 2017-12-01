@@ -10,13 +10,12 @@ import java.net.Socket;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.PriorityQueue;
+import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,9 +27,8 @@ import java.util.logging.Logger;
 
 public class PeerProcess {
 
-	List<Peer> peerInfoVector;
+	Vector<Peer> peerInfoVector;
 	static Peer currentPeer;
-	int noOfPeerHS;
 	int noOfPeers;
 	boolean isFilePresent;
 	ServerSocket serverSocket;
@@ -46,8 +44,8 @@ public class PeerProcess {
 	static boolean[][] sentRequestMessageByPiece;
 	boolean fileComplete;
 	static int lastPeerID;
-	BlockingQueue<MessageWriter> bqm;
-	BlockingQueue<String> bql;
+	BlockingQueue<MessageWriter> blockingQueueMessageWriter;
+	BlockingQueue<String> blockingQueueLogWriter;
 	HashMap<Peer, Socket> peerSocketMap;
 	int[][] pieceMatrix;
 	public final Object inputSynchronize = new Object();
@@ -64,8 +62,8 @@ public class PeerProcess {
 		fileComplete = false;
 		chokedFrom = new HashSet<>();
 		peerSocketMap = new HashMap<>();
-		bqm = new LinkedBlockingQueue<MessageWriter>();
-		bql = new LinkedBlockingQueue<String>();
+		blockingQueueMessageWriter = new LinkedBlockingQueue<MessageWriter>();
+		blockingQueueLogWriter = new LinkedBlockingQueue<String>();
 	}
 
 	public void copyFileUsingStream(String fileSource, String fileDestination) throws IOException {
@@ -128,7 +126,7 @@ public class PeerProcess {
 			e.printStackTrace();
 		}
 		PeerProcess peerProcess = new PeerProcess();
-		peerProcess.peerInfoVector = new ArrayList<Peer>();
+		peerProcess.peerInfoVector = new Vector<Peer>();
 
 		try {
 
@@ -176,7 +174,7 @@ public class PeerProcess {
 			prefNeighborTask = exec.submit(new PrefferedNeighborsThread(PeerProcess.this));
 			optimisticallyUnchokeNeighborTask = exec.submit(new OptimisticallyUnchokedNeighborThread(PeerProcess.this));
 			messageQueueTask = exec.submit(new MessageQueueProcess(PeerProcess.this));
-			logManagerTask = exec.submit(new LogManager(PeerProcess.this.bql, logger, this));
+			logManagerTask = exec.submit(new LogManager(PeerProcess.this.blockingQueueLogWriter, logger, this));
 
 			int peerCompleteFileReceived = 0;
 			serverSocket = new ServerSocket(portNo);
@@ -193,7 +191,7 @@ public class PeerProcess {
 					} else {
 						socket = serverSocket.accept();
 						Peer tempPeer = getPeerFromPeerList(socket.getInetAddress().getHostAddress(), socket.getPort());
-						PeerProcess.this.bql.put(
+						PeerProcess.this.blockingQueueLogWriter.put(
 								"Peer " + currentPeer.getPeerID() + " is connected from Peer " + tempPeer.getPeerID());
 						peerSocketMap.put(peerInfoVector.get(peerInfoVector.indexOf(tempPeer)), socket);
 						new Thread(new ConnectionManager(this, tempPeer, false)).start();
@@ -234,9 +232,9 @@ public class PeerProcess {
 				for (; !exec.isTerminated();) {
 					prefNeighborTask.cancel(false);
 					optimisticallyUnchokeNeighborTask.cancel(false);
-					for (; !bqm.isEmpty();) {
+					for (; !blockingQueueMessageWriter.isEmpty();) {
 					}
-					for (; !bql.isEmpty();) {
+					for (; !blockingQueueLogWriter.isEmpty();) {
 					}
 					messageQueueTask.cancel(false);
 					logManagerTask.cancel(false);
@@ -285,7 +283,7 @@ public class PeerProcess {
 		Socket socket;
 		try {
 			socket = new Socket(p.getPeerIP(), p.getPeerPortNumber());
-			PeerProcess.this.bql
+			PeerProcess.this.blockingQueueLogWriter
 					.put("Peer " + currentPeer.getPeerID() + " makes a connection to Peer " + p.getPeerID());
 			peerSocketMap.put(peerInfoVector.get(this.peerInfoVector.indexOf(p)), socket);
 			new Thread(new ConnectionManager(this, p, true)).start();
@@ -333,7 +331,7 @@ public class PeerProcess {
 			if (p.isHandShakeDone()) {
 				try {
 					Socket socket = PeerProcess.this.peerSocketMap.get(p);
-					PeerProcess.this.bqm.put(new MessageWriter(m, new DataOutputStream(socket.getOutputStream())));
+					PeerProcess.this.blockingQueueMessageWriter.put(new MessageWriter(m, new DataOutputStream(socket.getOutputStream())));
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
@@ -351,7 +349,7 @@ public class PeerProcess {
 				try {
 					System.out.println("Sent Unchoke to " + p.getPeerID());
 					Socket socket = PeerProcess.this.peerSocketMap.get(p);
-					PeerProcess.this.bqm.put(new MessageWriter(m, new DataOutputStream(socket.getOutputStream())));
+					PeerProcess.this.blockingQueueMessageWriter.put(new MessageWriter(m, new DataOutputStream(socket.getOutputStream())));
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				} catch (IOException e) {

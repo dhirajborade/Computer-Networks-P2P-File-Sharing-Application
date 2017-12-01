@@ -86,6 +86,6 @@ public class DownloadingRate {
 	}
 
 	private PeerProcess getOuterType() {
-		return this.peerProc;
+		return this.getPeerProc();
 	}
 }
