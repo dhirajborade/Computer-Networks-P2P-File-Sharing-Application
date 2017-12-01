@@ -22,7 +22,8 @@ public class MessageReader {
 	}
 
 	/**
-	 * @param socket the socket to set
+	 * @param socket
+	 *            the socket to set
 	 */
 	public void setSocket(Socket socket) {
 		this.socket = socket;
@@ -36,7 +37,8 @@ public class MessageReader {
 	}
 
 	/**
-	 * @param peerProc the peerProcess to set
+	 * @param peerProc
+	 *            the peerProcess to set
 	 */
 	public void setPeerProc(PeerProcess peerProc) {
 		this.peerProc = peerProc;
@@ -50,7 +52,8 @@ public class MessageReader {
 	}
 
 	/**
-	 * @param isHandshakeDone the isHandshakeDone to set
+	 * @param isHandshakeDone
+	 *            the isHandshakeDone to set
 	 */
 	public void setHandshakeDone(boolean isHandshakeDone) {
 		this.isHandshakeDone = isHandshakeDone;
@@ -59,12 +62,12 @@ public class MessageReader {
 	public Object readObject() throws Exception {
 		InputStream inputStream = this.getSocket().getInputStream();
 		if (this.isHandshakeDone()) {
-			for (;(!this.getPeerProc().exit && inputStream.available() < 4);) {
+			for (; (!this.getPeerProc().exit && inputStream.available() < 4);) {
 			}
 			byte[] lengthBytes = new byte[4];
 			inputStream.read(lengthBytes, 0, 4);
 			int length = ByteBuffer.wrap(lengthBytes).getInt();
-			for (;inputStream.available() < length;) {
+			for (; inputStream.available() < length;) {
 			}
 			byte[] typeBuffer = new byte[1];
 			try {
@@ -80,7 +83,7 @@ public class MessageReader {
 			} else {
 				payload = new byte[length - 1];
 				int recievedBytes = 0;
-				for (;recievedBytes < (length - 1);) {
+				for (; recievedBytes < (length - 1);) {
 					try {
 						recievedBytes = recievedBytes + inputStream.read(payload, recievedBytes, length - 1);
 					} catch (IOException e) {
@@ -109,12 +112,16 @@ public class MessageReader {
 				PiecePayload piecePayLoad = new PiecePayload(payload);
 				m = new Message(length, type, piecePayLoad, null);
 				break;
+			default:
+				m = new Message(length, type, payload);
+				break;
 			}
 			System.out.println("Available after reading Payload:" + inputStream.available());
 			return m;
 
-//			System.out.println("Available after reading Payload:" + inputStream.available());
-//			return new Message(length, type, payload);
+			// System.out.println("Available after reading Payload:" +
+			// inputStream.available());
+			// return new Message(length, type, payload);
 		} else {
 			byte[] header = new byte[18];
 			try {
