@@ -28,7 +28,7 @@ import java.util.logging.Logger;
 public class PeerProcess {
 
 	Vector<Peer> peerInfoVector;
-	static Peer currentPeer;
+	//static Peer currentPeer;
 	int noOfPeers;
 	boolean isFilePresent;
 	ServerSocket serverSocket;
@@ -54,7 +54,7 @@ public class PeerProcess {
 	Future<?> logManagerTask;
 	Future<?> messageQueueTask;
 	public volatile boolean exit = false;
-	static int currentPeerNo = 0;
+	//static int currentPeerNo = 0;
 
 	PeerProcess() {
 		sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -156,12 +156,12 @@ public class PeerProcess {
 			peerInfo.initializeFileManager(peerProcess, args[0]);
 
 			lastPeerID = peerInfo.getLastPeerID();
-			currentPeer = peerInfo.getCurrentPeer();
-			currentPeerNo = peerInfo.getCurrentPeerNo();
+			//currentPeer = peerInfo.getCurrentPeer();
+			//currentPeerNo = peerInfo.getCurrentPeerNo();
 
 			peerInfo.establishConnection(peerProcess);
 
-			peerProcess.createServerSocket(PeerProcess.currentPeer.getPeerPortNumber());
+			peerProcess.createServerSocket(PeerInfoConfigParser.getCurrentPeer().getPeerPortNumber());
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -183,7 +183,7 @@ public class PeerProcess {
 
 			for (; !PeerProcess.this.exit;) {
 				peerCompleteFileReceived = 0;
-				if (!(currentPeer.getPeerID() != lastPeerID && totalConnectedPeers < peerInfoVector.size())) {
+				if (!(PeerInfoConfigParser.getCurrentPeer().getPeerID() != lastPeerID && totalConnectedPeers < peerInfoVector.size())) {
 
 				} else {
 					Socket socket;
@@ -193,7 +193,7 @@ public class PeerProcess {
 						socket = serverSocket.accept();
 						Peer tempPeer = getPeerFromPeerList(socket.getInetAddress().getHostAddress(), socket.getPort());
 						PeerProcess.this.blockingQueueLogging.put(
-								"Peer " + currentPeer.getPeerID() + " is connected from Peer " + tempPeer.getPeerID());
+								"Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID() + " is connected from Peer " + tempPeer.getPeerID());
 						peerSocketMap.put(peerInfoVector.get(peerInfoVector.indexOf(tempPeer)), socket);
 						new Thread(new ConnectionManager(this, tempPeer, false)).start();
 						totalConnectedPeers++;
@@ -214,7 +214,7 @@ public class PeerProcess {
 
 				} else {
 					// check if you received the whole file
-					if (!checkIfFullFileReceived(currentPeer)) {
+					if (!checkIfFullFileReceived(PeerInfoConfigParser.getCurrentPeer())) {
 
 					} else {
 						// now terminate the process of executorService
@@ -282,7 +282,7 @@ public class PeerProcess {
 		try {
 			socket = new Socket(peer.getPeerIP(), peer.getPeerPortNumber());
 			PeerProcess.this.blockingQueueLogging
-					.put("Peer " + currentPeer.getPeerID() + " makes a connection to Peer " + peer.getPeerID());
+					.put("Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID() + " makes a connection to Peer " + peer.getPeerID());
 			peerSocketMap.put(peerInfoVector.get(this.peerInfoVector.indexOf(peer)), socket);
 			new Thread(new ConnectionManager(this, peer, true)).start();
 		} catch (IOException e) {

@@ -106,7 +106,7 @@ public class PeerInfoConfigParser {
 	/**
 	 * @return the currentPeer
 	 */
-	public Peer getCurrentPeer() {
+	public static Peer getCurrentPeer() {
 		return currentPeer;
 	}
 
@@ -114,7 +114,7 @@ public class PeerInfoConfigParser {
 	 * @param currentPeer
 	 *            the currentPeer to set
 	 */
-	public void setCurrentPeer(Peer currentPeer) {
+	public static void setCurrentPeer(Peer currentPeer) {
 		PeerInfoConfigParser.currentPeer = currentPeer;
 	}
 
@@ -164,7 +164,7 @@ public class PeerInfoConfigParser {
 					}
 					peerProc.peerInfoVector.addElement(peer);
 				} else {
-					this.setCurrentPeer(new Peer(tokens[0], tokens[1], tokens[2], peerHasFile));
+					PeerInfoConfigParser.setCurrentPeer(new Peer(tokens[0], tokens[1], tokens[2], peerHasFile));
 					this.setCurrentPeerNo(peerProc.peerInfoVector.size());
 					if (Integer.parseInt(tokens[3]) == 1) {
 						peerProc.isFilePresent = true;
@@ -190,27 +190,27 @@ public class PeerInfoConfigParser {
 				Arrays.fill(peer.getBitfield(), (byte) 0);
 				peerProc.peerInfoVector.addElement(peer);
 			} else {
-				this.setCurrentPeer(tempPeer);
+				PeerInfoConfigParser.setCurrentPeer(tempPeer);
 				if (peerProc.isFilePresent) {
 					peerProc.copyFileUsingStream(
 							new String(System.getProperty("user.dir") + "/" + CommonPropertiesParser.getFileName()),
 							new String(System.getProperty("user.dir") + "/peer_" + peerID + "/"
 									+ CommonPropertiesParser.getFileName()));
 					CommonPropertiesParser.setFileName(System.getProperty("user.dir") + "/peer_"
-							+ this.getCurrentPeer().getPeerID() + "/" + CommonPropertiesParser.getFileName());
+							+ PeerInfoConfigParser.getCurrentPeer().getPeerID() + "/" + CommonPropertiesParser.getFileName());
 					System.out.println(CommonPropertiesParser.getFileName());
 					peerProc.fileComplete = true;
-					this.getCurrentPeer().setBitfield(new byte[bufferSize]);
+					PeerInfoConfigParser.getCurrentPeer().setBitfield(new byte[bufferSize]);
 					for (int i = 0; i < CommonPropertiesParser.getNumberOfPieces(); i++) {
-						PeerProcess.setBit(this.getCurrentPeer().getBitfield(), i);
+						PeerProcess.setBit(PeerInfoConfigParser.getCurrentPeer().getBitfield(), i);
 					}
 				} else {
 					CommonPropertiesParser.setFileName(System.getProperty("user.dir") + "/peer_"
-							+ this.getCurrentPeer().getPeerID() + "/" + CommonPropertiesParser.getFileName());
+							+ PeerInfoConfigParser.getCurrentPeer().getPeerID() + "/" + CommonPropertiesParser.getFileName());
 					new File(CommonPropertiesParser.getFileName()).delete();
 					new File(CommonPropertiesParser.getFileName()).createNewFile();
-					this.getCurrentPeer().setBitfield(new byte[bufferSize]);
-					Arrays.fill(this.getCurrentPeer().getBitfield(), (byte) 0);
+					PeerInfoConfigParser.getCurrentPeer().setBitfield(new byte[bufferSize]);
+					Arrays.fill(PeerInfoConfigParser.getCurrentPeer().getBitfield(), (byte) 0);
 				}
 			}
 		}
