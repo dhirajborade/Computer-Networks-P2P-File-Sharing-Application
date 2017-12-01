@@ -5,6 +5,7 @@ import java.io.RandomAccessFile;
 import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Vector;
@@ -301,18 +302,23 @@ public class ConnectionManager extends Thread {
 		}
 	}
 
-	// TODO
 	private void sendHaveMessageToAll(byte[] payload) throws IOException {
 		byte[] i = new byte[4];
 		System.arraycopy(payload, 0, i, 0, 4);
 		int index = ByteBuffer.wrap(i).getInt();
 
-		if (PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), index) == 0) {
+		if (!(PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), index) == 0)) {
+
+		} else {
 			PeerProcess.setBit(PeerProcess.currentPeer.getBitfield(), index);
 			// if file complete set the bit
 
-			for (Peer p : peerProc.peerInfoVector) {
-				if (p.isHandShakeDone()) {
+			Iterator<Peer> iteratorPeer = peerProc.peerInfoVector.iterator();
+			while (iteratorPeer.hasNext()) {
+				Peer p = iteratorPeer.next();
+				if (!p.isHandShakeDone()) {
+
+				} else {
 					Message have = new Message(5, Byte.valueOf(Integer.toString(4)), i);
 					this.socket = peerProc.peerSocketMap.get(p);
 					try {
@@ -322,25 +328,22 @@ public class ConnectionManager extends Thread {
 					}
 				}
 			}
-			if (peerProc.checkIfFullFileRecieved(PeerProcess.currentPeer)) {
+
+			if (!peerProc.checkIfFullFileRecieved(PeerProcess.currentPeer)) {
+
+			} else {
 				try {
 					peerProc.bql
 							.put("Peer " + PeerProcess.currentPeer.getPeerID() + " has downloaded the complete file.");
 					peerProc.exit = true;
 				} catch (InterruptedException e) {
 					e.printStackTrace();
-
 				}
 			}
-
 		}
 	}
 
-	/**
-	 * @throws IOException
-	 *
-	 *
-	 */
+	// TODO
 	private void sendNotInterestedToSomeNeighbours() throws IOException {
 		List<Integer> NIIndices = new ArrayList<Integer>();
 
