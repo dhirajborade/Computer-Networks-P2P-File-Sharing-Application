@@ -7,6 +7,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Vector;
 
 public class ConnectionManager extends Thread {
 
@@ -27,9 +28,6 @@ public class ConnectionManager extends Thread {
 		this.setMessageRead(new MessageReader(this.getSocket(), peerProc));
 		this.setInitiateHandShake(initiateHandShake);
 		this.getPeer().setInterestedFromBitfield(new boolean[CommonPropertiesParser.getNumberOfPieces()]);
-		this.messageRead = new MessageReader(this.socket, peerProc);
-		this.initiateHandShake = initiateHandShake;
-		this.peer.setInterestedFromBitfield(new boolean[CommonPropertiesParser.getNumberOfPieces()]);
 		if (!this.isInitiateHandShake()) {
 
 		} else {
@@ -158,9 +156,9 @@ public class ConnectionManager extends Thread {
 	}
 
 	private void sendHandShake() throws IOException {
-		HandShake hs = new HandShake(PeerProcess.currentPeer.getPeerID());
+		HandShake handShake = new HandShake(PeerProcess.currentPeer.getPeerID());
 		try {
-			this.peerProc.bqm.put(new MessageWriter(hs, new DataOutputStream(socket.getOutputStream())));
+			this.peerProc.bqm.put(new MessageWriter(handShake, new DataOutputStream(socket.getOutputStream())));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -180,9 +178,9 @@ public class ConnectionManager extends Thread {
 					if (ByteBuffer.wrap(handShakeMessage.getPeerID()).getInt() != this.peer.getPeerID()) {
 
 					} else {
-						if (initiateHandShake)
+						if (initiateHandShake) {
 							sendBitfield();
-						else {
+						} else {
 							sendHandShake();
 						}
 					}
@@ -216,8 +214,9 @@ public class ConnectionManager extends Thread {
 					} else if (messageType == 5) {
 						this.peer.setHandShakeDone(true);
 						this.peer.setBitfield(message.getPayload());
-						if (!initiateHandShake)
+						if (!initiateHandShake) {
 							sendBitfield();
+						}
 						if (!peerProc.isFilePresent) {
 							sendInterestedifApplicable();
 						}
@@ -264,7 +263,7 @@ public class ConnectionManager extends Thread {
 		if (peerProc.fileComplete) {
 
 		} else {
-			List<Integer> pieceIndex = new ArrayList<Integer>();
+			Vector<Integer> pieceIndex = new Vector<Integer>();
 			/*
 			 * Get list of all pieces not yet received and for which request has not yet
 			 * been sent
@@ -288,7 +287,7 @@ public class ConnectionManager extends Thread {
 				sendRequest(this.peer, pieceIndex.get(selectedIndex));
 			}
 		}
-		sendNIToSomeNeighbours();
+		sendNotInterestedToSomeNeighbours();
 	}
 
 	private void updatePeerDownloadingRate() {
@@ -342,7 +341,7 @@ public class ConnectionManager extends Thread {
 	 *
 	 *
 	 */
-	private void sendNIToSomeNeighbours() throws IOException {
+	private void sendNotInterestedToSomeNeighbours() throws IOException {
 		List<Integer> NIIndices = new ArrayList<Integer>();
 
 		for (int i = 0; i < CommonPropertiesParser.getNumberOfPieces(); i++) {
