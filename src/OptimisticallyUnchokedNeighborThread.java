@@ -1,61 +1,97 @@
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Iterator;
 import java.util.Random;
+import java.util.Vector;
 
 public class OptimisticallyUnchokedNeighborThread implements Runnable {
-	List<Peer> interestedPeers;
-	PeerProcess peerProcess;
+	private Vector<Peer> interestedPeers;
+	private PeerProcess peerProc;
+
 	/**
-	 * @param peerProcess
+	 * @param peerProc
 	 */
-	public OptimisticallyUnchokedNeighborThread(PeerProcess peerProcess) {
+	public OptimisticallyUnchokedNeighborThread(PeerProcess peerProc) {
 		super();
-		this.peerProcess = peerProcess;
+		this.setPeerProc(peerProc);
+		this.setInterestedPeers(new Vector<Peer>());
 	}
 
-
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see java.lang.Runnable#run()
+	/**
+	 * @return the interestedPeers
 	 */
+	public Vector<Peer> getInterestedPeers() {
+		return interestedPeers;
+	}
+
+	/**
+	 * @param interestedPeers
+	 *            the interestedPeers to set
+	 */
+	public void setInterestedPeers(Vector<Peer> interestedPeers) {
+		this.interestedPeers = interestedPeers;
+	}
+
+	/**
+	 * @return the peerProcess
+	 */
+	public PeerProcess getPeerProc() {
+		return peerProc;
+	}
+
+	/**
+	 * @param peerProc
+	 *            the peerProcess to set
+	 */
+	public void setPeerProc(PeerProcess peerProc) {
+		this.peerProc = peerProc;
+	}
+
 	@Override
 	public void run() {
-		while (!peerProcess.exit) {
+		for (; !this.getPeerProc().exit;) {
 			try {
 
 				Thread.sleep(CommonPropertiesParser.getOptimisticUnchokingInterval() * 1000);
 
-				interestedPeers = new ArrayList<>();
-				for (Peer p : peerProcess.peerSocketMap.keySet()) {
-					if (p.isInterestedInPieces()) {
-						interestedPeers.add(p);
+				Iterator<Peer> iteratorPeer = this.getPeerProc().peerSocketMap.keySet().iterator();
+				while (iteratorPeer.hasNext()) {
+					Peer p = iteratorPeer.next();
+					if (!p.isInterestedInPieces()) {
+
+					} else {
+						this.getInterestedPeers().addElement(p);
 					}
 				}
-				if (interestedPeers.size() > 0) {
+				if (!(this.getInterestedPeers().size() > 0)) {
+
+				} else {
 					Random ran = new Random();
-					if (peerProcess.optimisticallyUnchokedNeighbor != null) {
-						// check if not a preferred neighbor then only
-						// send
-						// choke message
-						if (peerProcess.PreferedNeighbours!=null && !peerProcess.PreferedNeighbours.contains(peerProcess.optimisticallyUnchokedNeighbor)) {
-							// send a choke message to the previous
-							// neighbor
-							peerProcess.sendChokeMessage(new HashSet<>(Arrays.asList(peerProcess.optimisticallyUnchokedNeighbor)));
+					if (!(this.getPeerProc().optimisticallyUnchokedNeighbor != null)) {
+
+					} else {
+						// check if not a preferred neighbor then only send choke message
+						if (!(this.getPeerProc().PreferedNeighbours != null && !this.getPeerProc().PreferedNeighbours
+								.contains(this.getPeerProc().optimisticallyUnchokedNeighbor))) {
+
+						} else {
+							// send a choke message to the previous neighbor
+							this.getPeerProc().sendChokeMessage(
+									new HashSet<>(Arrays.asList(this.getPeerProc().optimisticallyUnchokedNeighbor)));
 						}
 					}
-					peerProcess.optimisticallyUnchokedNeighbor = interestedPeers.get(ran.nextInt(interestedPeers.size()));
-					peerProcess.sendUnChokeMessage(new HashSet<>(Arrays.asList(peerProcess.optimisticallyUnchokedNeighbor)));
-					peerProcess.bql.put(
+					this.getPeerProc().optimisticallyUnchokedNeighbor = this.getInterestedPeers()
+							.get(ran.nextInt(this.getInterestedPeers().size()));
+					this.getPeerProc().sendUnChokeMessage(
+							new HashSet<>(Arrays.asList(this.getPeerProc().optimisticallyUnchokedNeighbor)));
+					this.getPeerProc().bql.put(
 							"Peer " + PeerProcess.currentPeer.getPeerID() + " has the optimistically unchoked neighbor "
-									+ peerProcess.optimisticallyUnchokedNeighbor.getPeerID() + ".");
+									+ this.getPeerProc().optimisticallyUnchokedNeighbor.getPeerID() + ".");
 				}
 
 			} catch (Exception e) {
 				e.printStackTrace();
-				peerProcess.exit=true;
+				this.getPeerProc().exit = true;
 				break;
 			}
 		}
