@@ -202,7 +202,7 @@ public class ConnectionManager implements Runnable {
 					}
 				} else if (obj instanceof Message) {
 					Message message = (Message) obj;
-					System.out.println(message);
+					System.out.println("Received Message : " + message);
 					MessageType messageType = message.getMessageType();
 					if (messageType == MessageType.CHOKE) {
 						choke(this.peer);
@@ -468,9 +468,10 @@ public class ConnectionManager implements Runnable {
 			indexI++;
 		}
 		try {
-			peerProc.getBlockingQueueLogging().put("Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID()
-					+ " has downloaded the piece " + index + " from " + this.peer.getPeerID()
-					+ ". Now the number of pieces it has is " + (noOperation + 1));
+			peerProc.getBlockingQueueLogging()
+					.put("Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID() + " has downloaded the piece "
+							+ index + " from " + this.peer.getPeerID() + ". Now the number of pieces it has is "
+							+ (noOperation + 1));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -480,7 +481,8 @@ public class ConnectionManager implements Runnable {
 		Message m = new Message(PeerInfoConfigParser.getCurrentPeer().getBitfield().length + 1,
 				Byte.valueOf(Integer.toString(5)), PeerInfoConfigParser.getCurrentPeer().getBitfield());
 		try {
-			peerProc.getBlockingQueueMessages().put(new MessageWriter(m, new DataOutputStream(socket.getOutputStream())));
+			peerProc.getBlockingQueueMessages()
+					.put(new MessageWriter(m, new DataOutputStream(socket.getOutputStream())));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
@@ -495,7 +497,8 @@ public class ConnectionManager implements Runnable {
 		}
 		chokedFrom.add(p);
 		int indexOfPeer = peerProc.getPeerInfoVector().indexOf(p);
-		// reset the sentRequestMessageBy Piece array by comparing the bitfield array and request array
+		// reset the sentRequestMessageBy Piece array by comparing the bitfield array
+		// and request array
 		int indexI = 0;
 		while (indexI < CommonPropertiesParser.getNumberOfPieces()) {
 			if (!CommonPropertiesParser.getSentRequestMessageByPiece()[indexOfPeer][indexI]) {

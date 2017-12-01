@@ -124,7 +124,6 @@ public class MessageReader {
 				msg = new Message(length, type, payload);
 				break;
 			}
-			System.out.println("Available after reading Payload:" + inputStream.available());
 			return msg;
 		} else {
 			byte[] header = new byte[18];
