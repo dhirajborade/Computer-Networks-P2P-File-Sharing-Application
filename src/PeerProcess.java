@@ -238,8 +238,8 @@ public class PeerProcess {
 					}
 					for (; !bql.isEmpty();) {
 					}
-					messageQueueTask.cancel(true);
-					logManagerTask.cancel(true);
+					messageQueueTask.cancel(false);
+					logManagerTask.cancel(false);
 					exec.awaitTermination(1, TimeUnit.SECONDS);
 				}
 
@@ -264,12 +264,6 @@ public class PeerProcess {
 
 	}
 
-	/**
-	 * @param hostAddress
-	 * @param port
-	 * @return
-	 *
-	 */
 	private Peer getPeerFromPeerList(String hostAddress, int port) {
 
 		Iterator<Peer> it = this.peerInfoVector.iterator();
@@ -277,20 +271,21 @@ public class PeerProcess {
 
 			Peer tempPeer = (Peer) it.next();
 			System.out.println(port);
+			System.out.println(hostAddress);
 			if (tempPeer.getPeerIP().equals(hostAddress))
 				return tempPeer;
 		}
 		return null;
 	}
 
-	public void connectToPreviousPeer(Peer p) {
+	public void connectToPreviousPeer(Peer peer) {
 		Socket socket;
 		try {
-			socket = new Socket(p.getPeerIP(), p.getPeerPortNumber());
+			socket = new Socket(peer.getPeerIP(), peer.getPeerPortNumber());
 			PeerProcess.this.bql
-					.put("Peer " + currentPeer.getPeerID() + " makes a connection to Peer " + p.getPeerID());
-			peerSocketMap.put(peerInfoVector.get(this.peerInfoVector.indexOf(p)), socket);
-			ConnectionManager clientHandler = new ConnectionManager(this, p, true);
+					.put("Peer " + currentPeer.getPeerID() + " makes a connection to Peer " + peer.getPeerID());
+			peerSocketMap.put(peerInfoVector.get(this.peerInfoVector.indexOf(peer)), socket);
+			ConnectionManager clientHandler = new ConnectionManager(this, peer, true);
 			clientHandler.start();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -307,36 +302,39 @@ public class PeerProcess {
 	public static int getBit(byte[] b, int index) {
 		byte b1 = b[index / 8];
 		byte be = 1;
-
-		if ((b1 & (be << ((index) % 8))) != 0)
-			return 1;
-		else
-			return 0;
-
+		return (b1 & (be << ((index) % 8))) != 0 ? 1 : 0;
 	}
 
 	public static void clearBit(byte[] b, int index) {
 		byte b1 = 1;
 		b[index / 8] = (byte) (b[index / 8] & (~(b1 << ((index) % 8))));
-
 	}
 
-	public boolean checkIfFullFileRecieved(Peer p) {
-		for (int i = 0; i < CommonPropertiesParser.getNumberOfPieces(); i++) {
-			if (getBit(p.getBitfield(), i) == 0) {
-				return false;
+	public boolean checkIfFullFileRecieved(Peer peer) {
+		boolean result = true;
+		int indexI = 0;
+		while (indexI < CommonPropertiesParser.getNumberOfPieces()) {
+			if (!(getBit(peer.getBitfield(), indexI) == 0)) {
+
+			} else {
+				result = false;
 			}
+			indexI++;
 		}
-		return true;
+		return result;
 	}
 
 	public void sendChokeMessage(HashSet<Peer> peers) {
-		Message m = new Message(1, Byte.valueOf(Integer.toString(0)), null);
-		for (Peer p : peers) {
-			if (p.isHandShakeDone()) {
+		Message msg = new Message(1, Byte.valueOf(Integer.toString(0)), null);
+		Iterator<Peer> iteratorPeer = peers.iterator();
+		while (iteratorPeer.hasNext()) {
+			Peer p = iteratorPeer.next();
+			if (!p.isHandShakeDone()) {
+
+			} else {
 				try {
-					Socket socket = PeerProcess.this.peerSocketMap.get(p);
-					PeerProcess.this.bqm.put(new MessageWriter(m, new DataOutputStream(socket.getOutputStream())));
+					Socket socket = this.peerSocketMap.get(p);
+					PeerProcess.this.bqm.put(new MessageWriter(msg, new DataOutputStream(socket.getOutputStream())));
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
@@ -348,13 +346,17 @@ public class PeerProcess {
 	}
 
 	public void sendUnChokeMessage(HashSet<Peer> peers) {
-		Message m = new Message(1, Byte.valueOf(Integer.toString(1)), null);
-		for (Peer p : peers) {
-			if (p.isHandShakeDone()) {
+		Message msg = new Message(1, Byte.valueOf(Integer.toString(1)), null);
+		Iterator<Peer> iteratorPeer = peers.iterator();
+		while (iteratorPeer.hasNext()) {
+			Peer p = iteratorPeer.next();
+			if (!p.isHandShakeDone()) {
+
+			} else {
 				try {
 					System.out.println("Sent Unchoke to " + p.getPeerID());
 					Socket socket = PeerProcess.this.peerSocketMap.get(p);
-					PeerProcess.this.bqm.put(new MessageWriter(m, new DataOutputStream(socket.getOutputStream())));
+					PeerProcess.this.bqm.put(new MessageWriter(msg, new DataOutputStream(socket.getOutputStream())));
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
