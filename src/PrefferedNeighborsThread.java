@@ -45,7 +45,7 @@ public class PrefferedNeighborsThread implements Runnable {
 						for (int i = 0; i < CommonPropertiesParser.getNumberOfPreferredNeighbors(); i++) {
 							if (!peerProces.unchokingIntervalWisePeerDownloadingRate.isEmpty()) {
 								peerProces.NewPrefNeighbors
-										.add(peerProces.unchokingIntervalWisePeerDownloadingRate.poll().p);
+										.add(peerProces.unchokingIntervalWisePeerDownloadingRate.poll().getPeer());
 							}
 						}
 						// if the previous downloading rates list is less
