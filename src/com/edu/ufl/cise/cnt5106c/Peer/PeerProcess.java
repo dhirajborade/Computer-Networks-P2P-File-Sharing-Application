@@ -40,7 +40,6 @@ import com.edu.ufl.cise.cnt5106c.Message.MessageWriter;
 public class PeerProcess {
 
 	public Vector<Peer> peerInfoVector;
-	int noOfPeers;
 	public boolean isFilePresent;
 	ServerSocket serverSocket;
 	DateFormat sdf;
@@ -54,7 +53,6 @@ public class PeerProcess {
 	Logger logger;
 	public static boolean[][] sentRequestMessageByPiece;
 	public boolean fileComplete;
-	//static int lastPeerID;
 	public BlockingQueue<MessageWriter> blockingQueueMessages;
 	public BlockingQueue<String> blockingQueueLogging;
 	public HashMap<Peer, Socket> peerSocketMap;
@@ -67,7 +65,6 @@ public class PeerProcess {
 
 	PeerProcess() {
 		sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-		noOfPeers = PeerInfoConfigParser.getTotalPeers();
 		fileComplete = false;
 		chokedFrom = new HashSet<>();
 		peerSocketMap = new HashMap<>();
@@ -154,8 +151,6 @@ public class PeerProcess {
 						}
 					});
 
-			//peerProcess.pieceMatrix = CommonPropertiesParser.getPieceMatrix();
-
 			/*** Reads peerInfo.cfg file and initializes peerList ***/
 			peerInfo.initializePeerList(peerProcess, args[0]);
 
@@ -163,8 +158,6 @@ public class PeerProcess {
 
 			/*** Initializes File Manager ***/
 			peerInfo.initializeFileManager(peerProcess, args[0]);
-
-			//lastPeerID = peerInfo.getLastPeerID();
 
 			peerInfo.establishConnection(peerProcess);
 
@@ -192,7 +185,7 @@ public class PeerProcess {
 
 				} else {
 					Socket socket;
-					if (!(totalConnectedPeers != this.noOfPeers)) {
+					if (!(totalConnectedPeers != PeerInfoConfigParser.getTotalPeers())) {
 
 					} else {
 						socket = serverSocket.accept();
