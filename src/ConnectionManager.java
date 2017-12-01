@@ -392,8 +392,11 @@ public class ConnectionManager extends Thread {
 	private void processHaveMessage(Message message) throws IOException {
 		int index = ByteBuffer.wrap(message.getPayload()).getInt();
 
-		if (PeerProcess.getBit(this.peer.getBitfield(), index) == 0)
+		if (!(PeerProcess.getBit(this.peer.getBitfield(), index) == 0)) {
+
+		} else {
 			PeerProcess.setBit(this.peer.getBitfield(), index);
+		}
 
 		try {
 			peerProc.bql.put("Peer " + PeerProcess.currentPeer.getPeerID() + " received the 'have' message from "
@@ -404,21 +407,15 @@ public class ConnectionManager extends Thread {
 		sendInterestedifApplicable();
 	}
 
-	/**
-	 * @param message
-	 * @throws IOException
-	 *
-	 *
-	 */
 	private void processRequest(Message message) throws IOException {
 		int index = ByteBuffer.wrap(message.getPayload()).getInt();
 		if (PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), index) == 1) {
 			byte[] piece = new byte[CommonPropertiesParser.getPieceSize() + 4];
 			System.arraycopy(message.getPayload(), 0, piece, 0, 4);
-			RandomAccessFile rafr = new RandomAccessFile(new File(CommonPropertiesParser.getFileName()), "r");
-			rafr.seek(peerProc.pieceMatrix[index][0]);
-			rafr.readFully(piece, 4, peerProc.pieceMatrix[index][1]);
-			rafr.close();
+			RandomAccessFile randAccessFile = new RandomAccessFile(new File(CommonPropertiesParser.getFileName()), "r");
+			randAccessFile.seek(peerProc.pieceMatrix[index][0]);
+			randAccessFile.readFully(piece, 4, peerProc.pieceMatrix[index][1]);
+			randAccessFile.close();
 			Message mpiece = new Message(CommonPropertiesParser.getPieceSize() + 5, Byte.valueOf(Integer.toString(7)),
 					piece);
 			try {
@@ -427,35 +424,32 @@ public class ConnectionManager extends Thread {
 				e.printStackTrace();
 			}
 		}
-
-		// }
 	}
 
-	/**
-	 * @param piece
-	 * @throws IOException
-	 *
-	 */
 	private void writePieceToFile(byte[] payload) throws IOException {
-		byte[] i = new byte[4];
-		System.arraycopy(payload, 0, i, 0, 4);
-		int index = ByteBuffer.wrap(i).getInt();
+		byte[] tempIndex = new byte[4];
+		System.arraycopy(payload, 0, tempIndex, 0, 4);
+		int index = ByteBuffer.wrap(tempIndex).getInt();
 		byte[] piece = new byte[peerProc.pieceMatrix[index][1]];
 		System.arraycopy(payload, 4, piece, 0, peerProc.pieceMatrix[index][1]);
-		RandomAccessFile rafw = new RandomAccessFile(new File(CommonPropertiesParser.getFileName()), "rw");
-		rafw.seek(peerProc.pieceMatrix[index][0]);
-		rafw.write(piece, 0, peerProc.pieceMatrix[index][1]);
-		rafw.close();
+		RandomAccessFile randAccessFile = new RandomAccessFile(new File(CommonPropertiesParser.getFileName()), "rw");
+		randAccessFile.seek(peerProc.pieceMatrix[index][0]);
+		randAccessFile.write(piece, 0, peerProc.pieceMatrix[index][1]);
+		randAccessFile.close();
 
-		int nop = 0;
+		int noOperation = 0;
+		int indexI = 0;
+		while (indexI < CommonPropertiesParser.getNumberOfPieces()) {
+			if (!(PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), indexI) == 1)) {
 
-		for (int j = 0; j < CommonPropertiesParser.getNumberOfPieces(); j++)
-			if (PeerProcess.getBit(PeerProcess.currentPeer.getBitfield(), j) == 1) {
-				nop++;
+			} else {
+				noOperation++;
 			}
+			indexI++;
+		}
 		try {
 			peerProc.bql.put("Peer " + PeerProcess.currentPeer.getPeerID() + " has downloaded the piece " + index
-					+ " from " + this.peer.getPeerID() + ". Now the number of pieces it has is " + (nop + 1));
+					+ " from " + this.peer.getPeerID() + ". Now the number of pieces it has is " + (noOperation + 1));
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
