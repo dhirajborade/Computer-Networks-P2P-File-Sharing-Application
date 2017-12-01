@@ -1,14 +1,59 @@
 
 public class DownloadingRate {
-	Peer p;
-	double downloadingRate;
-	PeerProcess peerProc;
+	private Peer peer;
+	private double downloadingRate;
+	private PeerProcess peerProc;
 
-	public DownloadingRate(PeerProcess peerProc, Peer p, double downloadingRate) {
+	public DownloadingRate(PeerProcess peerProc, Peer peer, double downloadingRate) {
 		super();
-		this.peerProc = peerProc;
-		this.p = p;
+		this.setPeerProc(peerProc);
+		this.setPeer(peer);
+		this.setDownloadingRate(downloadingRate);
+	}
+
+	/**
+	 * @return the peer
+	 */
+	public Peer getPeer() {
+		return peer;
+	}
+
+	/**
+	 * @param peer
+	 *            the peer to set
+	 */
+	public void setPeer(Peer peer) {
+		this.peer = peer;
+	}
+
+	/**
+	 * @return the downloadingRate
+	 */
+	public double getDownloadingRate() {
+		return downloadingRate;
+	}
+
+	/**
+	 * @param downloadingRate
+	 *            the downloadingRate to set
+	 */
+	public void setDownloadingRate(double downloadingRate) {
 		this.downloadingRate = downloadingRate;
+	}
+
+	/**
+	 * @return the peerProc
+	 */
+	public PeerProcess getPeerProc() {
+		return peerProc;
+	}
+
+	/**
+	 * @param peerProc
+	 *            the peerProc to set
+	 */
+	public void setPeerProc(PeerProcess peerProc) {
+		this.peerProc = peerProc;
 	}
 
 	@Override
@@ -16,10 +61,11 @@ public class DownloadingRate {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + getOuterType().hashCode();
-		result = prime * result + ((p == null) ? 0 : p.hashCode());
+		result = prime * result + ((this.getPeer() == null) ? 0 : this.getPeer().hashCode());
 		return result;
 	}
 
+	// TODO
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -31,15 +77,15 @@ public class DownloadingRate {
 		DownloadingRate other = (DownloadingRate) obj;
 		if (!getOuterType().equals(other.getOuterType()))
 			return false;
-		if (p == null) {
-			if (other.p != null)
+		if (this.getPeer() == null) {
+			if (other.getPeer() != null)
 				return false;
-		} else if (!p.equals(other.p))
+		} else if (!this.getPeer().equals(other.getPeer()))
 			return false;
 		return true;
 	}
 
 	private PeerProcess getOuterType() {
-		return this.peerProc;
+		return this.getPeerProc();
 	}
 }

@@ -12,14 +12,18 @@ public class HandShake extends Message implements Serializable {
 
 	public HandShake(int peerId) {
 		this.setHeader(new byte[18]);
-		for (int i = 0; i < getHeadercontent().length(); i++) {
-			this.getHeader()[i] = (byte) (getHeadercontent().charAt(i));
+		int indexI = 0;
+		while (indexI < getHeadercontent().length()) {
+			this.getHeader()[indexI] = (byte) (getHeadercontent().charAt(indexI));
+			indexI++;
 		}
 		this.setPeerID(new byte[4]);
 		this.setPeerID(ByteBuffer.allocate(4).putInt(peerId).array());
 		this.setZeroBits(new byte[10]);
-		for (int i = 0; i < 10; i++) {
-			this.getZeroBits()[i] = (byte) 0;
+		int indexJ = 0;
+		while (indexJ < 10) {
+			this.getZeroBits()[indexJ] = (byte) 0;
+			indexJ++;
 		}
 	}
 
