@@ -195,8 +195,7 @@ public class PeerProcess {
 						PeerProcess.this.bql.put(
 								"Peer " + currentPeer.getPeerID() + " is connected from Peer " + tempPeer.getPeerID());
 						peerSocketMap.put(peerInfoVector.get(peerInfoVector.indexOf(tempPeer)), socket);
-						ConnectionManager clientHandler = new ConnectionManager(this, tempPeer, false);
-						clientHandler.start();
+						new Thread(new ConnectionManager(this, tempPeer, false)).start();
 						totalConnectedPeers++;
 					}
 				}
@@ -285,8 +284,7 @@ public class PeerProcess {
 			PeerProcess.this.bql
 					.put("Peer " + currentPeer.getPeerID() + " makes a connection to Peer " + peer.getPeerID());
 			peerSocketMap.put(peerInfoVector.get(this.peerInfoVector.indexOf(peer)), socket);
-			ConnectionManager clientHandler = new ConnectionManager(this, peer, true);
-			clientHandler.start();
+			new Thread(new ConnectionManager(this, peer, true)).start();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {

@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.Random;
 import java.util.Vector;
 
-public class ConnectionManager extends Thread {
+public class ConnectionManager implements Runnable {
 
 	private Socket socket;
 	private MessageReader messageRead;
