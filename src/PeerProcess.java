@@ -203,7 +203,7 @@ public class PeerProcess {
 				Iterator<Peer> iter = peerInfoVector.iterator();
 				while (iter.hasNext()) {
 					Peer p = iter.next();
-					if (!checkIfFullFileRecieved(p)) {
+					if (!checkIfFullFileReceived(p)) {
 
 					} else {
 						peerCompleteFileReceived++;
@@ -213,8 +213,8 @@ public class PeerProcess {
 				if (peerCompleteFileReceived != peerInfoVector.size()) {
 
 				} else {
-					// check if you recievecd the whole file
-					if (!checkIfFullFileRecieved(currentPeer)) {
+					// check if you received the whole file
+					if (!checkIfFullFileReceived(currentPeer)) {
 
 					} else {
 						// now terminate the process of executorService
@@ -308,7 +308,7 @@ public class PeerProcess {
 		b[index / 8] = (byte) (b[index / 8] & (~(b1 << ((index) % 8))));
 	}
 
-	public boolean checkIfFullFileRecieved(Peer peer) {
+	public boolean checkIfFullFileReceived(Peer peer) {
 		boolean result = true;
 		int indexI = 0;
 		while (indexI < CommonPropertiesParser.getNumberOfPieces()) {

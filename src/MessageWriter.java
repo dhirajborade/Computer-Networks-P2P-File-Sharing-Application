@@ -61,7 +61,7 @@ public class MessageWriter {
 			if (!((this.getMessage().getPayload() != null) && (this.getMessage().getPayload().length > 0))) {
 
 			} else {
-				System.out.println("Payload Length tp be sent:" + this.getMessage().getPayload().length);
+				System.out.println("Payload Length to be sent:" + this.getMessage().getPayload().length);
 				bos.write(this.getMessage().getPayload(), 0, this.getMessage().getPayload().length);
 			}
 		}

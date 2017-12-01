@@ -327,7 +327,7 @@ public class ConnectionManager implements Runnable {
 				}
 			}
 
-			if (!peerProc.checkIfFullFileRecieved(PeerProcess.currentPeer)) {
+			if (!peerProc.checkIfFullFileReceived(PeerProcess.currentPeer)) {
 
 			} else {
 				try {
