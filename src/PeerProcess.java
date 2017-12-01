@@ -194,7 +194,7 @@ public class PeerProcess {
 						PeerProcess.this.blockingQueueLogWriter.put(
 								"Peer " + currentPeer.getPeerID() + " is connected from Peer " + tempPeer.getPeerID());
 						peerSocketMap.put(peerInfoVector.get(peerInfoVector.indexOf(tempPeer)), socket);
-						new Thread(new ConnectionManager(this, tempPeer, false)).start();
+						(new ConnectionManager(this, tempPeer, false)).start();
 						totalConnectedPeers++;
 					}
 				}
@@ -286,7 +286,7 @@ public class PeerProcess {
 			PeerProcess.this.blockingQueueLogWriter
 					.put("Peer " + currentPeer.getPeerID() + " makes a connection to Peer " + p.getPeerID());
 			peerSocketMap.put(peerInfoVector.get(this.peerInfoVector.indexOf(p)), socket);
-			new Thread(new ConnectionManager(this, p, true)).start();
+			(new ConnectionManager(this, p, true)).start();
 		} catch (IOException e) {
 			e.printStackTrace();
 		} catch (InterruptedException e) {

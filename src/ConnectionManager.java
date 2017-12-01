@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Vector;
 
-public class ConnectionManager implements Runnable {
+public class ConnectionManager extends Thread {
 
 	private Socket socket;
 	private MessageReader messageRead;
