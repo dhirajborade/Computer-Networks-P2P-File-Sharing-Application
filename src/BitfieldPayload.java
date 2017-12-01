@@ -13,30 +13,40 @@ public class BitfieldPayload extends Payload {
 	 */
 	private static final long serialVersionUID = 8052696107658542567L;
 
-	private byte[] payload;
+	private byte[] bitfieldPayload;
 
 	/**
 	 * @param bitfield
 	 */
 	public BitfieldPayload(byte[] payload) {
 		super(payload);
-		this.setBitfield(payload);
+		this.setBitfieldPayload(payload);
 	}
 
-	/**
-	 * @return the bitfield
-	 */
-	public byte[] getBitfield() {
-		return payload;
-	}
 
 	/**
-	 * @param bitfield
-	 *            the bitfield to set
+	 * @return the bitfieldPayload
 	 */
-	public void setBitfield(byte[] payload) {
-		this.payload = payload;
+	public byte[] getBitfieldPayload() {
+		return bitfieldPayload;
 	}
+
+
+	/**
+	 * @param bitfieldPayload the bitfieldPayload to set
+	 */
+	public void setBitfieldPayload(byte[] bitfieldPayload) {
+		this.bitfieldPayload = bitfieldPayload;
+	}
+
+
+	/**
+	 * @return the serialversionuid
+	 */
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
+
 
 	/**
 	 * @param args

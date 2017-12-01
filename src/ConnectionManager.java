@@ -403,8 +403,8 @@ public class ConnectionManager implements Runnable {
 		try {
 			peerProc.blockingQueueLogging.put("Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID()
 					+ " received the 'have' message from " + this.peer.getPeerID() + " for the piece " + index + ".");
-		} catch (InterruptedException e1) {
-			e1.printStackTrace();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 		sendInterestedifApplicable();
 	}

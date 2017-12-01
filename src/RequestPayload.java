@@ -14,29 +14,36 @@ public class RequestPayload extends Payload {
 	private static final long serialVersionUID = 9208727206802180498L;
 
 	// 4-byte piece index field we will index from -2,147,483,648 to 2,147,483,647
-	private byte[] payload;
+	private byte[] requestPayload;
 
 	/**
 	 * @param index
 	 */
 	public RequestPayload(byte[] payload) {
 		super(payload);
-		this.setPayload(payload);
+		this.setRequestPayload(payload);
 	}
 
 	/**
-	 * @return the index
+	 * @return the requestPayload
 	 */
-	public byte[] getPayload() {
-		return payload;
+	public byte[] getRequestPayload() {
+		return requestPayload;
 	}
 
 	/**
-	 * @param index
-	 *            the index to set
+	 * @param requestPayload
+	 *            the requestPayload to set
 	 */
-	public void setPayload(byte[] payload) {
-		this.payload = payload;
+	public void setRequestPayload(byte[] requestPayload) {
+		this.requestPayload = requestPayload;
+	}
+
+	/**
+	 * @return the serialversionuid
+	 */
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 
 	/**

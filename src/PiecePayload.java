@@ -13,7 +13,7 @@ public class PiecePayload extends Payload {
 	private static final long serialVersionUID = 5795021442144294811L;
 
 	// 4-byte piece index field we will index from -2,147,483,648 to 2,147,483,647
-	private byte[] payload;
+	private byte[] piecePayload;
 
 	/**
 	 * @param content
@@ -21,23 +21,30 @@ public class PiecePayload extends Payload {
 	 */
 	public PiecePayload(byte[] payload) {
 		super(payload);
-		this.setPayload(payload);
+		this.setPiecePayload(payload);
 
 	}
 
 	/**
-	 * @return the content
+	 * @return the piecePayload
 	 */
-	public byte[] getPayload() {
-		return payload;
+	public byte[] getPiecePayload() {
+		return piecePayload;
 	}
 
 	/**
-	 * @param content
-	 *            the content to set
+	 * @param piecePayload
+	 *            the piecePayload to set
 	 */
-	public void setPayload(byte[] payload) {
-		this.payload = payload;
+	public void setPiecePayload(byte[] piecePayload) {
+		this.piecePayload = piecePayload;
+	}
+
+	/**
+	 * @return the serialversionuid
+	 */
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 
 	/**
