@@ -477,7 +477,7 @@ public class ConnectionManager extends Thread {
 		// bitfield array and request array
 		int i = 0;
 		while (i < CommonPropertiesParser.getNumberOfPieces()) {
-			if (PeerProcess.sentRequestMessageByPiece[indexOfPeer][i]) {
+			if (!PeerProcess.sentRequestMessageByPiece[indexOfPeer][i]) {
 
 			} else {
 				// check if piece received, if not reset the request message
