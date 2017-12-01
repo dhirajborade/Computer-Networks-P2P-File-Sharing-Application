@@ -1,8 +1,14 @@
+package com.edu.ufl.cise.cnt5106c.Managers;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Vector;
+
+import com.edu.ufl.cise.cnt5106c.Configuration.CommonPropertiesParser;
+import com.edu.ufl.cise.cnt5106c.Configuration.PeerInfoConfigParser;
+import com.edu.ufl.cise.cnt5106c.Peer.Peer;
+import com.edu.ufl.cise.cnt5106c.Peer.PeerProcess;
 
 public class OptimisticallyUnchokedNeighborThread implements Runnable {
 	private Vector<Peer> interestedPeers;

@@ -1,3 +1,4 @@
+package com.edu.ufl.cise.cnt5106c.Configuration;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -10,6 +11,9 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
+
+import com.edu.ufl.cise.cnt5106c.Peer.Peer;
+import com.edu.ufl.cise.cnt5106c.Peer.PeerProcess;
 
 /**
  *

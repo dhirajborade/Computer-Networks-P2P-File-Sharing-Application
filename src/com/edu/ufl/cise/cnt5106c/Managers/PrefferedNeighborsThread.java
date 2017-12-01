@@ -1,6 +1,12 @@
+package com.edu.ufl.cise.cnt5106c.Managers;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Random;
+
+import com.edu.ufl.cise.cnt5106c.Configuration.CommonPropertiesParser;
+import com.edu.ufl.cise.cnt5106c.Configuration.PeerInfoConfigParser;
+import com.edu.ufl.cise.cnt5106c.Peer.Peer;
+import com.edu.ufl.cise.cnt5106c.Peer.PeerProcess;
 
 public class PrefferedNeighborsThread implements Runnable {
 

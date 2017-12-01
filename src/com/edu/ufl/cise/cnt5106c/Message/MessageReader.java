@@ -1,7 +1,14 @@
+package com.edu.ufl.cise.cnt5106c.Message;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+
+import com.edu.ufl.cise.cnt5106c.Payload.BitfieldPayload;
+import com.edu.ufl.cise.cnt5106c.Payload.HavePayload;
+import com.edu.ufl.cise.cnt5106c.Payload.PiecePayload;
+import com.edu.ufl.cise.cnt5106c.Payload.RequestPayload;
+import com.edu.ufl.cise.cnt5106c.Peer.PeerProcess;
 
 public class MessageReader {
 
@@ -93,35 +100,31 @@ public class MessageReader {
 				}
 			}
 
-			Message m = null;
+			Message msg = null;
 			switch ((int) type) {
 
 			case 4:
 				HavePayload havePayLoad = new HavePayload(payload);
-				m = new Message(length, type, havePayLoad, null);
+				msg = new Message(length, type, havePayLoad, null);
 				break;
 			case 5:
 				BitfieldPayload bitFieldPayLoad = new BitfieldPayload(payload);
-				m = new Message(length, type, bitFieldPayLoad, null);
+				msg = new Message(length, type, bitFieldPayLoad, null);
 				break;
 			case 6:
 				RequestPayload requestPayLoad = new RequestPayload(payload);
-				m = new Message(length, type, requestPayLoad, null);
+				msg = new Message(length, type, requestPayLoad, null);
 				break;
 			case 7:
 				PiecePayload piecePayLoad = new PiecePayload(payload);
-				m = new Message(length, type, piecePayLoad, null);
+				msg = new Message(length, type, piecePayLoad, null);
 				break;
 			default:
-				m = new Message(length, type, payload);
+				msg = new Message(length, type, payload);
 				break;
 			}
 			System.out.println("Available after reading Payload:" + inputStream.available());
-			return m;
-
-			// System.out.println("Available after reading Payload:" +
-			// inputStream.available());
-			// return new Message(length, type, payload);
+			return msg;
 		} else {
 			byte[] header = new byte[18];
 			try {

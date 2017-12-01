@@ -1,3 +1,4 @@
+package com.edu.ufl.cise.cnt5106c.Managers;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -7,6 +8,18 @@ import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.Vector;
+
+import com.edu.ufl.cise.cnt5106c.Configuration.CommonPropertiesParser;
+import com.edu.ufl.cise.cnt5106c.Configuration.DownloadingRate;
+import com.edu.ufl.cise.cnt5106c.Configuration.PeerInfoConfigParser;
+import com.edu.ufl.cise.cnt5106c.Handshake.HandShake;
+import com.edu.ufl.cise.cnt5106c.Peer.Peer;
+import com.edu.ufl.cise.cnt5106c.Peer.PeerProcess;
+
+import Message;
+import MessageReader;
+import MessageType;
+import MessageWriter;
 
 public class ConnectionManager implements Runnable {
 

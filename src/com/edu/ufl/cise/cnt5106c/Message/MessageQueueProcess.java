@@ -1,4 +1,7 @@
+package com.edu.ufl.cise.cnt5106c.Message;
 import java.io.IOException;
+
+import com.edu.ufl.cise.cnt5106c.Peer.PeerProcess;
 
 public class MessageQueueProcess implements Runnable {
 

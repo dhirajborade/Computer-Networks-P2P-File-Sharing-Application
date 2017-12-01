@@ -1,3 +1,4 @@
+package com.edu.ufl.cise.cnt5106c.Message;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;

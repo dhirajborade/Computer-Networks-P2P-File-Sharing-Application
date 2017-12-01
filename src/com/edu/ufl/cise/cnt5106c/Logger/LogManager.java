@@ -1,6 +1,9 @@
+package com.edu.ufl.cise.cnt5106c.Logger;
 import java.util.concurrent.BlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import com.edu.ufl.cise.cnt5106c.Peer.PeerProcess;
 
 class LogManager implements Runnable {
 	private static BlockingQueue<String> blockingQueueLog;

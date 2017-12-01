@@ -1,4 +1,7 @@
+package com.edu.ufl.cise.cnt5106c.Message;
 import java.io.Serializable;
+
+import com.edu.ufl.cise.cnt5106c.Payload.Payload;
 
 public class Message implements Serializable {
 

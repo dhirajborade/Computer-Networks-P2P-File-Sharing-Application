@@ -1,3 +1,4 @@
+package com.edu.ufl.cise.cnt5106c.Peer;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -25,11 +26,19 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 
+import com.edu.ufl.cise.cnt5106c.Configuration.CommonPropertiesParser;
+import com.edu.ufl.cise.cnt5106c.Configuration.DownloadingRate;
+import com.edu.ufl.cise.cnt5106c.Configuration.PeerInfoConfigParser;
+import com.edu.ufl.cise.cnt5106c.Logger.LogFormatter;
+import com.edu.ufl.cise.cnt5106c.Logger.LogManager;
+import com.edu.ufl.cise.cnt5106c.Managers.ConnectionManager;
+import com.edu.ufl.cise.cnt5106c.Managers.PeerManager;
+
 public class PeerProcess {
 
-	Vector<Peer> peerInfoVector;
+	public Vector<Peer> peerInfoVector;
 	int noOfPeers;
-	boolean isFilePresent;
+	public boolean isFilePresent;
 	ServerSocket serverSocket;
 	DateFormat sdf;
 	File logfile;
@@ -41,7 +50,7 @@ public class PeerProcess {
 	PriorityQueue<DownloadingRate> unchokingIntervalWisePeerDownloadingRate;
 	Logger logger;
 	static boolean[][] sentRequestMessageByPiece;
-	boolean fileComplete;
+	public boolean fileComplete;
 	static int lastPeerID;
 	BlockingQueue<MessageWriter> blockingQueueMessages;
 	BlockingQueue<String> blockingQueueLogging;
