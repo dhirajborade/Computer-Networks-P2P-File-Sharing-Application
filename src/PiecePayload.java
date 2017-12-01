@@ -20,7 +20,7 @@ public class PiecePayload extends Payload {
 	 * @param index
 	 */
 	public PiecePayload(byte[] payload) {
-		super();
+		super(payload);
 		this.setPayload(payload);
 
 	}

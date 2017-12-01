@@ -18,8 +18,8 @@ public class HavePayload extends Payload {
 	 * @param index
 	 */
 	public HavePayload(byte[] payload) {
-		super();
-		this.payload = payload;
+		super(payload);
+		this.setPayload(payload);
 	}
 
 	/**

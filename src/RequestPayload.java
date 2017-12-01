@@ -20,8 +20,8 @@ public class RequestPayload extends Payload {
 	 * @param index
 	 */
 	public RequestPayload(byte[] payload) {
-		super();
-		this.payload = payload;
+		super(payload);
+		this.setPayload(payload);
 	}
 
 	/**
