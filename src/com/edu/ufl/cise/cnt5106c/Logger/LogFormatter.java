@@ -10,6 +10,7 @@ public class LogFormatter extends SimpleFormatter {
 
 	private static final DateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss.SSS");
 
+	// TODO
 	public String format(LogRecord record) {
 		StringBuilder builder = new StringBuilder();
 		builder.append("[").append(dateFormat.format(new Date(record.getMillis()))).append("]: ")
