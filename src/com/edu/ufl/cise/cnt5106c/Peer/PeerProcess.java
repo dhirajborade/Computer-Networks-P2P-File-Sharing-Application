@@ -1,4 +1,5 @@
 package com.edu.ufl.cise.cnt5106c.Peer;
+
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -39,27 +40,21 @@ import com.edu.ufl.cise.cnt5106c.Message.MessageWriter;
 
 public class PeerProcess {
 
-	public Vector<Peer> peerInfoVector;
-	public boolean isFilePresent;
-	ServerSocket serverSocket;
-	DateFormat sdf;
-	File logfile;
-	public HashSet<Peer> preferredNeighbors;
-	public HashSet<Peer> newPreferredNeighbors;
-	public HashSet<Peer> sendUnchokePreferredNeighbors;
-	public Peer optimisticallyUnchokedNeighbor;
-	public PriorityQueue<DownloadingRate> unchokingIntervalWisePeerDownloadingRate;
-	Logger logger;
-	public boolean fileComplete;
-	public BlockingQueue<MessageWriter> blockingQueueMessages;
-	public BlockingQueue<String> blockingQueueLogging;
-	public HashMap<Peer, Socket> peerSocketMap;
-	public final Object inputSynchronize = new Object();
-	Future<?> prefNeighborTask;
-	Future<?> optimisticallyUnchokeNeighborTask;
-	Future<?> logManagerTask;
-	Future<?> messageQueueTask;
-	public volatile boolean exit = false;
+	private Vector<Peer> peerInfoVector;
+	private boolean isFilePresent;
+	private ServerSocket serverSocket;
+	private DateFormat sdf;
+	private File logfile;
+	private PriorityQueue<DownloadingRate> unchokingIntervalWisePeerDownloadingRate;
+	private Logger logger;
+	private boolean fileComplete;
+	private BlockingQueue<MessageWriter> blockingQueueMessages;
+	private BlockingQueue<String> blockingQueueLogging;
+	private HashMap<Peer, Socket> peerSocketMap;
+	private final Object inputSynchronize = new Object();
+	private Future<?> logManagerTask;
+	private Future<?> messageQueueTask;
+	private volatile boolean exit = false;
 
 	PeerProcess() {
 		sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -67,6 +62,224 @@ public class PeerProcess {
 		peerSocketMap = new HashMap<>();
 		blockingQueueMessages = new LinkedBlockingQueue<MessageWriter>();
 		blockingQueueLogging = new LinkedBlockingQueue<String>();
+	}
+
+	/**
+	 * @return the peerInfoVector
+	 */
+	public Vector<Peer> getPeerInfoVector() {
+		return peerInfoVector;
+	}
+
+	/**
+	 * @param peerInfoVector
+	 *            the peerInfoVector to set
+	 */
+	public void setPeerInfoVector(Vector<Peer> peerInfoVector) {
+		this.peerInfoVector = peerInfoVector;
+	}
+
+	/**
+	 * @return the isFilePresent
+	 */
+	public boolean isFilePresent() {
+		return isFilePresent;
+	}
+
+	/**
+	 * @param isFilePresent
+	 *            the isFilePresent to set
+	 */
+	public void setFilePresent(boolean isFilePresent) {
+		this.isFilePresent = isFilePresent;
+	}
+
+	/**
+	 * @return the serverSocket
+	 */
+	public ServerSocket getServerSocket() {
+		return serverSocket;
+	}
+
+	/**
+	 * @param serverSocket
+	 *            the serverSocket to set
+	 */
+	public void setServerSocket(ServerSocket serverSocket) {
+		this.serverSocket = serverSocket;
+	}
+
+	/**
+	 * @return the sdf
+	 */
+	public DateFormat getSdf() {
+		return sdf;
+	}
+
+	/**
+	 * @param sdf
+	 *            the sdf to set
+	 */
+	public void setSdf(DateFormat sdf) {
+		this.sdf = sdf;
+	}
+
+	/**
+	 * @return the logfile
+	 */
+	public File getLogfile() {
+		return logfile;
+	}
+
+	/**
+	 * @param logfile
+	 *            the logfile to set
+	 */
+	public void setLogfile(File logfile) {
+		this.logfile = logfile;
+	}
+
+	/**
+	 * @return the unchokingIntervalWisePeerDownloadingRate
+	 */
+	public PriorityQueue<DownloadingRate> getUnchokingIntervalWisePeerDownloadingRate() {
+		return unchokingIntervalWisePeerDownloadingRate;
+	}
+
+	/**
+	 * @param unchokingIntervalWisePeerDownloadingRate
+	 *            the unchokingIntervalWisePeerDownloadingRate to set
+	 */
+	public void setUnchokingIntervalWisePeerDownloadingRate(
+			PriorityQueue<DownloadingRate> unchokingIntervalWisePeerDownloadingRate) {
+		this.unchokingIntervalWisePeerDownloadingRate = unchokingIntervalWisePeerDownloadingRate;
+	}
+
+	/**
+	 * @return the logger
+	 */
+	public Logger getLogger() {
+		return logger;
+	}
+
+	/**
+	 * @param logger
+	 *            the logger to set
+	 */
+	public void setLogger(Logger logger) {
+		this.logger = logger;
+	}
+
+	/**
+	 * @return the fileComplete
+	 */
+	public boolean isFileComplete() {
+		return fileComplete;
+	}
+
+	/**
+	 * @param fileComplete
+	 *            the fileComplete to set
+	 */
+	public void setFileComplete(boolean fileComplete) {
+		this.fileComplete = fileComplete;
+	}
+
+	/**
+	 * @return the blockingQueueMessages
+	 */
+	public BlockingQueue<MessageWriter> getBlockingQueueMessages() {
+		return blockingQueueMessages;
+	}
+
+	/**
+	 * @param blockingQueueMessages
+	 *            the blockingQueueMessages to set
+	 */
+	public void setBlockingQueueMessages(BlockingQueue<MessageWriter> blockingQueueMessages) {
+		this.blockingQueueMessages = blockingQueueMessages;
+	}
+
+	/**
+	 * @return the blockingQueueLogging
+	 */
+	public BlockingQueue<String> getBlockingQueueLogging() {
+		return blockingQueueLogging;
+	}
+
+	/**
+	 * @param blockingQueueLogging
+	 *            the blockingQueueLogging to set
+	 */
+	public void setBlockingQueueLogging(BlockingQueue<String> blockingQueueLogging) {
+		this.blockingQueueLogging = blockingQueueLogging;
+	}
+
+	/**
+	 * @return the peerSocketMap
+	 */
+	public HashMap<Peer, Socket> getPeerSocketMap() {
+		return peerSocketMap;
+	}
+
+	/**
+	 * @param peerSocketMap
+	 *            the peerSocketMap to set
+	 */
+	public void setPeerSocketMap(HashMap<Peer, Socket> peerSocketMap) {
+		this.peerSocketMap = peerSocketMap;
+	}
+
+	/**
+	 * @return the logManagerTask
+	 */
+	public Future<?> getLogManagerTask() {
+		return logManagerTask;
+	}
+
+	/**
+	 * @param logManagerTask
+	 *            the logManagerTask to set
+	 */
+	public void setLogManagerTask(Future<?> logManagerTask) {
+		this.logManagerTask = logManagerTask;
+	}
+
+	/**
+	 * @return the messageQueueTask
+	 */
+	public Future<?> getMessageQueueTask() {
+		return messageQueueTask;
+	}
+
+	/**
+	 * @param messageQueueTask
+	 *            the messageQueueTask to set
+	 */
+	public void setMessageQueueTask(Future<?> messageQueueTask) {
+		this.messageQueueTask = messageQueueTask;
+	}
+
+	/**
+	 * @return the exit
+	 */
+	public boolean isExit() {
+		return exit;
+	}
+
+	/**
+	 * @param exit
+	 *            the exit to set
+	 */
+	public void setExit(boolean exit) {
+		this.exit = exit;
+	}
+
+	/**
+	 * @return the inputSynchronize
+	 */
+	public Object getInputSynchronize() {
+		return inputSynchronize;
 	}
 
 	public void copyFileUsingStream(String fileSource, String fileDestination) throws IOException {
@@ -176,7 +389,8 @@ public class PeerProcess {
 
 			for (; !PeerProcess.this.exit;) {
 				peerCompleteFileReceived = 0;
-				if (!(PeerInfoConfigParser.getCurrentPeer().getPeerID() != PeerInfoConfigParser.getLastPeerID() && totalConnectedPeers < peerInfoVector.size())) {
+				if (!(PeerInfoConfigParser.getCurrentPeer().getPeerID() != PeerInfoConfigParser.getLastPeerID()
+						&& totalConnectedPeers < peerInfoVector.size())) {
 
 				} else {
 					Socket socket;
@@ -184,9 +398,11 @@ public class PeerProcess {
 
 					} else {
 						socket = serverSocket.accept();
-						Peer tempPeer = getPeerFromPeerList(socket.getInetAddress().getHostAddress(), socket.getPort(), socket.getLocalPort());
-						PeerProcess.this.blockingQueueLogging.put(
-								"Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID() + " is connected from Peer " + tempPeer.getPeerID());
+						Peer tempPeer = getPeerFromPeerList(socket.getInetAddress().getHostAddress(), socket.getPort(),
+								socket.getLocalPort());
+						PeerProcess.this.blockingQueueLogging
+								.put("Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID()
+										+ " is connected from Peer " + tempPeer.getPeerID());
 						peerSocketMap.put(peerInfoVector.get(peerInfoVector.indexOf(tempPeer)), socket);
 						new Thread(new ConnectionManager(this, tempPeer, false)).start();
 						totalConnectedPeers++;
@@ -279,8 +495,8 @@ public class PeerProcess {
 		Socket socket;
 		try {
 			socket = new Socket(peer.getPeerIP(), peer.getPeerPortNumber());
-			PeerProcess.this.blockingQueueLogging
-					.put("Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID() + " makes a connection to Peer " + peer.getPeerID());
+			PeerProcess.this.blockingQueueLogging.put("Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID()
+					+ " makes a connection to Peer " + peer.getPeerID());
 			peerSocketMap.put(peerInfoVector.get(this.peerInfoVector.indexOf(peer)), socket);
 			new Thread(new ConnectionManager(this, peer, true)).start();
 		} catch (IOException e) {
@@ -330,7 +546,8 @@ public class PeerProcess {
 			} else {
 				try {
 					Socket socket = this.peerSocketMap.get(p);
-					PeerProcess.this.blockingQueueMessages.put(new MessageWriter(msg, new DataOutputStream(socket.getOutputStream())));
+					PeerProcess.this.blockingQueueMessages
+							.put(new MessageWriter(msg, new DataOutputStream(socket.getOutputStream())));
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				} catch (IOException e) {
@@ -352,7 +569,8 @@ public class PeerProcess {
 				try {
 					System.out.println("Sent Unchoke to " + p.getPeerID());
 					Socket socket = PeerProcess.this.peerSocketMap.get(p);
-					PeerProcess.this.blockingQueueMessages.put(new MessageWriter(msg, new DataOutputStream(socket.getOutputStream())));
+					PeerProcess.this.blockingQueueMessages
+							.put(new MessageWriter(msg, new DataOutputStream(socket.getOutputStream())));
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				} catch (IOException e) {

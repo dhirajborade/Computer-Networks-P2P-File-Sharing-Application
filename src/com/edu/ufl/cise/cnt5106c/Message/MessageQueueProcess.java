@@ -30,15 +30,15 @@ public class MessageQueueProcess implements Runnable {
 	@Override
 	public void run() {
 		try {
-			for (; !this.getPeerProcess().exit;) {
-				for (; !this.getPeerProcess().blockingQueueMessages.isEmpty();) {
-					MessageWriter ms = this.getPeerProcess().blockingQueueMessages.take();
+			for (; !this.getPeerProcess().isExit();) {
+				for (; !this.getPeerProcess().getBlockingQueueMessages().isEmpty();) {
+					MessageWriter ms = this.getPeerProcess().getBlockingQueueMessages().take();
 					ms.writeObject();
 				}
 			}
 		} catch (InterruptedException | IOException e) {
 			e.printStackTrace();
-			this.getPeerProcess().exit = true;
+			this.getPeerProcess().setExit(true);
 		}
 	}
 }

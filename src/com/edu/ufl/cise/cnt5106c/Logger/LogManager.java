@@ -64,13 +64,13 @@ public class LogManager implements Runnable {
 	@Override
 	public void run() {
 		try {
-			for (; !getPeerProcess().exit;) {
+			for (; !getPeerProcess().isExit();) {
 				for (; !getBlockingQueueLog().isEmpty();)
 					getLogger().log(Level.INFO, getBlockingQueueLog().take());
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-			getPeerProcess().exit = true;
+			getPeerProcess().setExit(true);
 		}
 	}
 }

@@ -1,4 +1,5 @@
 package com.edu.ufl.cise.cnt5106c.Managers;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -24,6 +25,10 @@ public class PeerManager implements Runnable {
 	private long optimisticUnchokingInterval;
 	private Vector<Peer> interestedPeers;
 	private PeerProcess peerProc;
+	public HashSet<Peer> preferredNeighbors;
+	public HashSet<Peer> newPreferredNeighbors;
+	public HashSet<Peer> sendUnchokePreferredNeighbors;
+	public Peer optimisticallyUnchokedNeighbor;
 
 	/**
 	 *
@@ -102,12 +107,12 @@ public class PeerManager implements Runnable {
 		// TODO Auto-generated method stub
 		new Thread() {
 			public void run() {
-				for (; !peerProc.exit;) {
+				for (; !peerProc.isExit();) {
 					try {
 
 						Thread.sleep(CommonPropertiesParser.getOptimisticUnchokingInterval() * 1000);
 
-						Iterator<Peer> iteratorPeer = peerProc.peerSocketMap.keySet().iterator();
+						Iterator<Peer> iteratorPeer = peerProc.getPeerSocketMap().keySet().iterator();
 						while (iteratorPeer.hasNext()) {
 							Peer p = iteratorPeer.next();
 							if (!p.isInterestedInPieces()) {
@@ -120,31 +125,30 @@ public class PeerManager implements Runnable {
 
 						} else {
 							Random ran = new Random();
-							if (!(peerProc.optimisticallyUnchokedNeighbor != null)) {
+							if (!(optimisticallyUnchokedNeighbor != null)) {
 
 							} else {
 								// check if not a preferred neighbor then only send choke message
-								if (!(peerProc.preferredNeighbors != null && !peerProc.preferredNeighbors
-										.contains(peerProc.optimisticallyUnchokedNeighbor))) {
+								if (!(preferredNeighbors != null
+										&& !preferredNeighbors.contains(optimisticallyUnchokedNeighbor))) {
 
 								} else {
 									// send a choke message to the previous neighbor
 									peerProc.sendChokeMessage(
-											new HashSet<>(Arrays.asList(peerProc.optimisticallyUnchokedNeighbor)));
+											new HashSet<>(Arrays.asList(optimisticallyUnchokedNeighbor)));
 								}
 							}
-							peerProc.optimisticallyUnchokedNeighbor = interestedPeers
-									.get(ran.nextInt(interestedPeers.size()));
-							peerProc.sendUnChokeMessage(
-									new HashSet<>(Arrays.asList(peerProc.optimisticallyUnchokedNeighbor)));
-							peerProc.blockingQueueLogging.put("Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID()
-									+ " has the optimistically unchoked neighbor "
-									+ peerProc.optimisticallyUnchokedNeighbor.getPeerID() + ".");
+							optimisticallyUnchokedNeighbor = interestedPeers.get(ran.nextInt(interestedPeers.size()));
+							peerProc.sendUnChokeMessage(new HashSet<>(Arrays.asList(optimisticallyUnchokedNeighbor)));
+							peerProc.getBlockingQueueLogging()
+									.put("Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID()
+											+ " has the optimistically unchoked neighbor "
+											+ optimisticallyUnchokedNeighbor.getPeerID() + ".");
 						}
 
 					} catch (Exception e) {
 						e.printStackTrace();
-						peerProc.exit = true;
+						peerProc.setExit(true);
 						break;
 					}
 				}
@@ -156,25 +160,25 @@ public class PeerManager implements Runnable {
 		// TODO Auto-generated method stub
 		new Thread() {
 			public void run() {
-				for (; !peerProc.exit;) {
+				for (; !peerProc.isExit();) {
 					try {
 						Thread.sleep(CommonPropertiesParser.getUnchokingInterval() * 1000);
-						if (!(peerProc.peerInfoVector.size() > 0)) {
+						if (!(peerProc.getPeerInfoVector().size() > 0)) {
 
 						} else {
-							peerProc.newPreferredNeighbors = new HashSet<Peer>();
-							if (peerProc.unchokingIntervalWisePeerDownloadingRate.size() == 0) {
+							newPreferredNeighbors = new HashSet<Peer>();
+							if (peerProc.getUnchokingIntervalWisePeerDownloadingRate().size() == 0) {
 
 								// as it is a new arraylist, this thread is run for the first time
 								// so we do not have previous unchoking interval available
 								// thus select any random peers and add them to the preferred neighbors list
 								Random ran = new Random();
 								int indexI = 0;
-								while (indexI < peerProc.peerInfoVector.size() && peerProc.newPreferredNeighbors
+								while (indexI < peerProc.getPeerInfoVector().size() && newPreferredNeighbors
 										.size() < CommonPropertiesParser.getNumberOfPreferredNeighbors()) {
-									Peer p = peerProc.peerInfoVector.get(ran.nextInt(peerProc.peerInfoVector.size()));
+									Peer p = peerProc.getPeerInfoVector().get(ran.nextInt(peerProc.getPeerInfoVector().size()));
 									if (p.isInterestedInPieces()) {
-										peerProc.newPreferredNeighbors.add(p);
+										newPreferredNeighbors.add(p);
 									}
 									indexI++;
 								}
@@ -185,67 +189,68 @@ public class PeerManager implements Runnable {
 								Random ran = new Random();
 								int indexI = 0;
 								while (indexI < CommonPropertiesParser.getNumberOfPreferredNeighbors()) {
-									if (!peerProc.unchokingIntervalWisePeerDownloadingRate.isEmpty()) {
-										peerProc.newPreferredNeighbors.add(
-												peerProc.unchokingIntervalWisePeerDownloadingRate.poll().getPeer());
+									if (!peerProc.getUnchokingIntervalWisePeerDownloadingRate().isEmpty()) {
+										newPreferredNeighbors.add(
+												peerProc.getUnchokingIntervalWisePeerDownloadingRate().poll().getPeer());
 									}
 									indexI++;
 								}
 								// if the previous downloading rates list is less than preferred neighbors size
 
 								int indexJ = 0;
-								while (indexJ < peerProc.peerInfoVector.size() && peerProc.newPreferredNeighbors
+								while (indexJ < peerProc.getPeerInfoVector().size() && newPreferredNeighbors
 										.size() < CommonPropertiesParser.getNumberOfPreferredNeighbors()) {
-									Peer p = peerProc.peerInfoVector.get(ran.nextInt(peerProc.peerInfoVector.size()));
+									Peer p = peerProc.getPeerInfoVector().get(ran.nextInt(peerProc.getPeerInfoVector().size()));
 									if (p.isInterestedInPieces()) {
-										peerProc.newPreferredNeighbors.add(p);
+										newPreferredNeighbors.add(p);
 									}
 									indexJ++;
 								}
 							}
-							if (!(peerProc.newPreferredNeighbors.size() > 0)) {
+							if (!(newPreferredNeighbors.size() > 0)) {
 
 							} else {
 								// send unchoke only to the new ones
-								peerProc.sendUnchokePreferredNeighbors = new HashSet<>();
+								sendUnchokePreferredNeighbors = new HashSet<>();
 								// deep copying list
-								if (!(peerProc.preferredNeighbors == null)) {
+								if (!(preferredNeighbors == null)) {
 
 								} else {
-									peerProc.preferredNeighbors = new HashSet<>();
+									preferredNeighbors = new HashSet<>();
 								}
-								Iterator<Peer> iteratorPeerA = peerProc.newPreferredNeighbors.iterator();
+								Iterator<Peer> iteratorPeerA = newPreferredNeighbors.iterator();
 								while (iteratorPeerA.hasNext()) {
 									Peer p = iteratorPeerA.next();
-									if (peerProc.preferredNeighbors.contains(p)) {
+									if (preferredNeighbors.contains(p)) {
 
 									} else {
-										peerProc.sendUnchokePreferredNeighbors.add(p);
+										sendUnchokePreferredNeighbors.add(p);
 									}
 								}
-								peerProc.sendUnchokePreferredNeighbors.removeAll(peerProc.preferredNeighbors);
+								sendUnchokePreferredNeighbors.removeAll(preferredNeighbors);
 								// send choke messages to other who are not present in the new list of preferred
 								// neighbors
-								peerProc.preferredNeighbors.removeAll(peerProc.newPreferredNeighbors);
-								peerProc.sendChokeMessage(peerProc.preferredNeighbors);
-								peerProc.sendUnChokeMessage(new HashSet<>(peerProc.sendUnchokePreferredNeighbors));
-								peerProc.preferredNeighbors = peerProc.newPreferredNeighbors;
+								preferredNeighbors.removeAll(newPreferredNeighbors);
+								peerProc.sendChokeMessage(preferredNeighbors);
+								peerProc.sendUnChokeMessage(new HashSet<>(sendUnchokePreferredNeighbors));
+								preferredNeighbors = newPreferredNeighbors;
 
 								String peerIdList = "";
 
-								Iterator<Peer> iteratorPeerB = peerProc.preferredNeighbors.iterator();
+								Iterator<Peer> iteratorPeerB = preferredNeighbors.iterator();
 								while (iteratorPeerB.hasNext()) {
 									Peer p = iteratorPeerB.next();
 									peerIdList = p.getPeerID() + ",";
 								}
-								peerProc.blockingQueueLogging.put(
-										"Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID() + " has the preferred neighbors "
+								peerProc.getBlockingQueueLogging()
+										.put("Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID()
+												+ " has the preferred neighbors "
 												+ peerIdList.substring(0, peerIdList.length() - 1) + ".");
 							}
 						}
 					} catch (InterruptedException e) {
 						e.printStackTrace();
-						peerProc.exit = true;
+						peerProc.setExit(true);
 						break;
 					}
 				}

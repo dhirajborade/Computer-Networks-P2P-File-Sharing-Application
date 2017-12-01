@@ -167,12 +167,12 @@ public class PeerInfoConfigParser {
 					if (Integer.parseInt(tokens[3]) == 0) {
 						peer.setHandShakeDone(false);
 					}
-					peerProc.peerInfoVector.addElement(peer);
+					peerProc.getPeerInfoVector().addElement(peer);
 				} else {
 					PeerInfoConfigParser.setCurrentPeer(new Peer(tokens[0], tokens[1], tokens[2], peerHasFile));
-					this.setCurrentPeerNo(peerProc.peerInfoVector.size());
+					this.setCurrentPeerNo(peerProc.getPeerInfoVector().size());
 					if (Integer.parseInt(tokens[3]) == 1) {
-						peerProc.isFilePresent = true;
+						peerProc.setFilePresent(true);
 					}
 				}
 			}
@@ -188,15 +188,15 @@ public class PeerInfoConfigParser {
 			Peer tempPeer = (Peer) iteratorPeer.next();
 			PeerInfoConfigParser.setLastPeerID(tempPeer.getPeerID());
 			if (tempPeer.getPeerID() != Integer.parseInt(peerID)) {
-				peerProc.peerInfoVector.remove(tempPeer);
+				peerProc.getPeerInfoVector().remove(tempPeer);
 				System.out.println("t:" + tempPeer.getPeerID());
 				Peer peer = tempPeer;
 				peer.setBitfield(new byte[bufferSize]);
 				Arrays.fill(peer.getBitfield(), (byte) 0);
-				peerProc.peerInfoVector.addElement(peer);
+				peerProc.getPeerInfoVector().addElement(peer);
 			} else {
 				PeerInfoConfigParser.setCurrentPeer(tempPeer);
-				if (peerProc.isFilePresent) {
+				if (peerProc.isFilePresent()) {
 					peerProc.copyFileUsingStream(
 							new String(System.getProperty("user.dir") + "/" + CommonPropertiesParser.getFileName()),
 							new String(System.getProperty("user.dir") + "/peer_" + peerID + "/"
@@ -205,7 +205,7 @@ public class PeerInfoConfigParser {
 							+ PeerInfoConfigParser.getCurrentPeer().getPeerID() + "/"
 							+ CommonPropertiesParser.getFileName());
 					System.out.println(CommonPropertiesParser.getFileName());
-					peerProc.fileComplete = true;
+					peerProc.setFileComplete(true);
 					PeerInfoConfigParser.getCurrentPeer().setBitfield(new byte[bufferSize]);
 					for (int i = 0; i < CommonPropertiesParser.getNumberOfPieces(); i++) {
 						PeerProcess.setBit(PeerInfoConfigParser.getCurrentPeer().getBitfield(), i);
@@ -226,7 +226,7 @@ public class PeerInfoConfigParser {
 	public void establishConnection(PeerProcess peerProc) {
 		int indexI = 0;
 		while (this.getCurrentPeerNo() != 0 && indexI <= this.getCurrentPeerNo() - 1) {
-			peerProc.connectToPreviousPeer(peerProc.peerInfoVector.get(indexI));
+			peerProc.connectToPreviousPeer(peerProc.getPeerInfoVector().get(indexI));
 			indexI++;
 		}
 	}
