@@ -1,3 +1,4 @@
+package com.edu.ufl.cise.cnt5106c.Peer;
 import java.net.Socket;
 
 public class Peer {
@@ -21,46 +22,12 @@ public class Peer {
 	 * @param peerPortNumber
 	 * @param filePresent
 	 */
-	public Peer(int peerID, String peerIP, int peerPortNumber, boolean filePresent) {
-		super();
-		this.setPeerID(peerID);
-		this.setPeerIP(peerIP);
-		this.setPeerPortNumber(peerPortNumber);
-		this.setFilePresent(filePresent);
-	}
-
-	/**
-	 * @param peerID
-	 * @param peerIP
-	 * @param peerPortNumber
-	 * @param filePresent
-	 */
 	public Peer(String peerID, String peerIP, String peerPortNumber, boolean filePresent) {
 		super();
-		this.setPeerID(Integer.parseInt(peerID));
-		this.setPeerIP(peerIP);
-		this.setPeerPortNumber(Integer.parseInt(peerPortNumber));
-		this.setFilePresent(filePresent);
-	}
-
-	public Peer(int peerID, String peerIP, int peerPortNumber) {
-		super();
-		this.setPeerID(peerID);
-		this.setPeerIP(peerIP);
-		this.setPeerPortNumber(peerPortNumber);
-	}
-
-	public Peer(String peerIP, int peerPortNumber) {
-		super();
-		this.setPeerIP(peerIP);
-		this.setPeerPortNumber(peerPortNumber);
-	}
-
-	public Peer(String peerID, String peerIP, String peerPortNumber) {
-		super();
-		this.setPeerID(Integer.parseInt(peerID));
-		this.setPeerIP(peerIP);
-		this.setPeerPortNumber(Integer.parseInt(peerPortNumber));
+		this.peerID = Integer.parseInt(peerID);
+		this.peerIP = peerIP;
+		this.peerPortNumber = Integer.parseInt(peerPortNumber);
+		this.filePresent = filePresent;
 	}
 
 	/**

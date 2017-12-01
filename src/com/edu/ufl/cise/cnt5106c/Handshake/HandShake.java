@@ -1,6 +1,9 @@
+package com.edu.ufl.cise.cnt5106c.Handshake;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+
+import com.edu.ufl.cise.cnt5106c.Message.Message;
 
 public class HandShake extends Message implements Serializable {
 
@@ -27,9 +30,6 @@ public class HandShake extends Message implements Serializable {
 		}
 	}
 
-	/**
-	 * @return the header
-	 */
 	public byte[] getHeader() {
 		return header;
 	}

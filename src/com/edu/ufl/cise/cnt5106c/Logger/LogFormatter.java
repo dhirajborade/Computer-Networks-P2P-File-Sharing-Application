@@ -1,3 +1,4 @@
+package com.edu.ufl.cise.cnt5106c.Logger;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -12,9 +13,8 @@ public class LogFormatter extends SimpleFormatter {
 	// TODO
 	public String format(LogRecord record) {
 		StringBuilder builder = new StringBuilder();
-		builder.append("[").append(dateFormat.format(new Date(record.getMillis()))).append("]: ");
-		builder.append(record.getMessage());
-		builder.append(System.getProperty("line.separator"));
+		builder.append("[").append(dateFormat.format(new Date(record.getMillis()))).append("]: ")
+				.append(record.getMessage()).append(System.getProperty("line.separator"));
 		System.out.println("Record Message:" + builder);
 		return builder.toString();
 	}

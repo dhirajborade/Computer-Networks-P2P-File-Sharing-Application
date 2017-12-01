@@ -1,3 +1,6 @@
+package com.edu.ufl.cise.cnt5106c.Configuration;
+import com.edu.ufl.cise.cnt5106c.Peer.Peer;
+import com.edu.ufl.cise.cnt5106c.Peer.PeerProcess;
 
 public class DownloadingRate {
 	private Peer peer;
@@ -65,7 +68,6 @@ public class DownloadingRate {
 		return result;
 	}
 
-	// TODO
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

@@ -1,7 +1,10 @@
+package com.edu.ufl.cise.cnt5106c.Message;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+
+import com.edu.ufl.cise.cnt5106c.Handshake.HandShake;
 
 public class MessageWriter {
 	private Message message;
@@ -58,10 +61,10 @@ public class MessageWriter {
 			System.out.println(this.getOutStream().size());
 			bos.write(ByteBuffer.allocate(4).putInt(this.getMessage().getLength()).array(), 0, 4);
 			bos.write(new byte[] { this.getMessage().getType() }, 0, 1);
-			if (!(this.getMessage().getPayload() != null) && (this.getMessage().getPayload().length > 0)) {
+			if (!((this.getMessage().getPayload() != null) && (this.getMessage().getPayload().length > 0))) {
 
 			} else {
-				System.out.println("Payload Length tp be sent:" + this.getMessage().getPayload().length);
+				System.out.println("Payload Length to be sent:" + this.getMessage().getPayload().length);
 				bos.write(this.getMessage().getPayload(), 0, this.getMessage().getPayload().length);
 			}
 		}
@@ -69,4 +72,5 @@ public class MessageWriter {
 		this.getOutStream().write(bos.toByteArray());
 		this.getOutStream().flush();
 	}
+
 }
