@@ -185,7 +185,7 @@ public class PeerProcess {
 
 					} else {
 						socket = serverSocket.accept();
-						Peer tempPeer = getPeerFromPeerList(socket.getInetAddress().getHostAddress(), socket.getPort());
+						Peer tempPeer = getPeerFromPeerList(socket.getInetAddress().getHostAddress(), socket.getPort(), socket.getLocalPort());
 						PeerProcess.this.blockingQueueLogging.put(
 								"Peer " + PeerInfoConfigParser.getCurrentPeer().getPeerID() + " is connected from Peer " + tempPeer.getPeerID());
 						peerSocketMap.put(peerInfoVector.get(peerInfoVector.indexOf(tempPeer)), socket);
@@ -255,7 +255,7 @@ public class PeerProcess {
 
 	}
 
-	private Peer getPeerFromPeerList(String hostAddress, int port) {
+	private Peer getPeerFromPeerList(String hostAddress, int port, int peerPort) {
 
 		Iterator<Peer> it = this.peerInfoVector.iterator();
 		while (it.hasNext()) {
@@ -263,8 +263,8 @@ public class PeerProcess {
 			Peer tempPeer = (Peer) it.next();
 			System.out.println(port);
 			System.out.println(hostAddress);
-			if (hostAddress == "localhost") {
-				if (tempPeer.getPeerPortNumber() == port) {
+			if (hostAddress.equals("127.0.0.1")) {
+				if (tempPeer.getPeerPortNumber() == peerPort) {
 					return tempPeer;
 				}
 			} else {

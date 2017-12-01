@@ -89,8 +89,32 @@ public class MessageReader {
 					}
 				}
 			}
+
+			Message m = null;
+			switch ((int) type) {
+
+			case 4:
+				HavePayload havePayLoad = new HavePayload(payload);
+				m = new Message(length, type, havePayLoad, null);
+				break;
+			case 5:
+				BitfieldPayload bitFieldPayLoad = new BitfieldPayload(payload);
+				m = new Message(length, type, bitFieldPayLoad, null);
+				break;
+			case 6:
+				RequestPayload requestPayLoad = new RequestPayload(payload);
+				m = new Message(length, type, requestPayLoad, null);
+				break;
+			case 7:
+				PiecePayload piecePayLoad = new PiecePayload(payload);
+				m = new Message(length, type, piecePayLoad, null);
+				break;
+			}
 			System.out.println("Available after reading Payload:" + inputStream.available());
-			return new Message(length, type, payload);
+			return m;
+
+//			System.out.println("Available after reading Payload:" + inputStream.available());
+//			return new Message(length, type, payload);
 		} else {
 			byte[] header = new byte[18];
 			try {
