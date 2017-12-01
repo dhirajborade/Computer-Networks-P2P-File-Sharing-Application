@@ -51,7 +51,6 @@ public class PeerProcess {
 	public Peer optimisticallyUnchokedNeighbor;
 	public PriorityQueue<DownloadingRate> unchokingIntervalWisePeerDownloadingRate;
 	Logger logger;
-	public static boolean[][] sentRequestMessageByPiece;
 	public boolean fileComplete;
 	public BlockingQueue<MessageWriter> blockingQueueMessages;
 	public BlockingQueue<String> blockingQueueLogging;
@@ -153,8 +152,6 @@ public class PeerProcess {
 
 			/*** Reads peerInfo.cfg file and initializes peerList ***/
 			peerInfo.initializePeerList(peerProcess, args[0]);
-
-			PeerProcess.sentRequestMessageByPiece = CommonPropertiesParser.getSentRequestMessageByPiece();
 
 			/*** Initializes File Manager ***/
 			peerInfo.initializeFileManager(peerProcess, args[0]);

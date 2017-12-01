@@ -380,7 +380,7 @@ public class ConnectionManager implements Runnable {
 				int indexJ = 0;
 				while (indexJ < CommonPropertiesParser.getNumberOfPieces()) {
 					if (!(PeerProcess.getBit(p.getBitfield(), indexJ) == 1 && !notInterestedIndices.contains(indexJ)
-							&& !PeerProcess.sentRequestMessageByPiece[peerProc.peerInfoVector.indexOf(p)][indexJ])) {
+							&& !CommonPropertiesParser.getSentRequestMessageByPiece()[peerProc.peerInfoVector.indexOf(p)][indexJ])) {
 
 					} else {
 						amIInterestedInAnyPiecesOfThisPeer = true;
@@ -494,11 +494,11 @@ public class ConnectionManager implements Runnable {
 		// and request array
 		int indexI = 0;
 		while (indexI < CommonPropertiesParser.getNumberOfPieces()) {
-			if (!PeerProcess.sentRequestMessageByPiece[indexOfPeer][indexI]) {
+			if (!CommonPropertiesParser.getSentRequestMessageByPiece()[indexOfPeer][indexI]) {
 
 			} else {
 				// check if piece received, if not reset the request message field
-				PeerProcess.sentRequestMessageByPiece[indexOfPeer][indexI] = false;
+				CommonPropertiesParser.getSentRequestMessageByPiece()[indexOfPeer][indexI] = false;
 			}
 			indexI++;
 		}
@@ -558,7 +558,7 @@ public class ConnectionManager implements Runnable {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			PeerProcess.sentRequestMessageByPiece[peerProc.peerInfoVector.indexOf(p)][pieceIndex] = true;
+			CommonPropertiesParser.getSentRequestMessageByPiece()[peerProc.peerInfoVector.indexOf(p)][pieceIndex] = true;
 		}
 	}
 }
