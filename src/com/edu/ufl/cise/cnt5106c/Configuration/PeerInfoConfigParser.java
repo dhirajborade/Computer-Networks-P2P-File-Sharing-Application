@@ -1,4 +1,5 @@
 package com.edu.ufl.cise.cnt5106c.Configuration;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -80,7 +81,7 @@ public class PeerInfoConfigParser {
 	/**
 	 * @return the lastPeerID
 	 */
-	public int getLastPeerID() {
+	public static int getLastPeerID() {
 		return lastPeerID;
 	}
 
@@ -88,7 +89,7 @@ public class PeerInfoConfigParser {
 	 * @param lastPeerID
 	 *            the lastPeerID to set
 	 */
-	public void setLastPeerID(int lastPeerID) {
+	public static void setLastPeerID(int lastPeerID) {
 		PeerInfoConfigParser.lastPeerID = lastPeerID;
 	}
 
@@ -158,7 +159,7 @@ public class PeerInfoConfigParser {
 		try {
 			while ((line = pireader.readLine()) != null) {
 				tokens = line.split(" ");
-				this.setLastPeerID(Integer.parseInt(tokens[0]));
+				PeerInfoConfigParser.setLastPeerID(Integer.parseInt(tokens[0]));
 				final boolean peerHasFile = (tokens[3].trim().compareTo("1") == 0);
 				if (!tokens[0].equals(peerID)) {
 					System.out.println("t:" + tokens[0] + " " + tokens[1] + " " + tokens[2]);
@@ -185,7 +186,7 @@ public class PeerInfoConfigParser {
 		Iterator<Peer> iteratorPeer = getPeerInfoVector().iterator();
 		while (iteratorPeer.hasNext()) {
 			Peer tempPeer = (Peer) iteratorPeer.next();
-			this.setLastPeerID(tempPeer.getPeerID());
+			PeerInfoConfigParser.setLastPeerID(tempPeer.getPeerID());
 			if (tempPeer.getPeerID() != Integer.parseInt(peerID)) {
 				peerProc.peerInfoVector.remove(tempPeer);
 				System.out.println("t:" + tempPeer.getPeerID());
@@ -201,7 +202,8 @@ public class PeerInfoConfigParser {
 							new String(System.getProperty("user.dir") + "/peer_" + peerID + "/"
 									+ CommonPropertiesParser.getFileName()));
 					CommonPropertiesParser.setFileName(System.getProperty("user.dir") + "/peer_"
-							+ PeerInfoConfigParser.getCurrentPeer().getPeerID() + "/" + CommonPropertiesParser.getFileName());
+							+ PeerInfoConfigParser.getCurrentPeer().getPeerID() + "/"
+							+ CommonPropertiesParser.getFileName());
 					System.out.println(CommonPropertiesParser.getFileName());
 					peerProc.fileComplete = true;
 					PeerInfoConfigParser.getCurrentPeer().setBitfield(new byte[bufferSize]);
@@ -210,7 +212,8 @@ public class PeerInfoConfigParser {
 					}
 				} else {
 					CommonPropertiesParser.setFileName(System.getProperty("user.dir") + "/peer_"
-							+ PeerInfoConfigParser.getCurrentPeer().getPeerID() + "/" + CommonPropertiesParser.getFileName());
+							+ PeerInfoConfigParser.getCurrentPeer().getPeerID() + "/"
+							+ CommonPropertiesParser.getFileName());
 					new File(CommonPropertiesParser.getFileName()).delete();
 					new File(CommonPropertiesParser.getFileName()).createNewFile();
 					PeerInfoConfigParser.getCurrentPeer().setBitfield(new byte[bufferSize]);

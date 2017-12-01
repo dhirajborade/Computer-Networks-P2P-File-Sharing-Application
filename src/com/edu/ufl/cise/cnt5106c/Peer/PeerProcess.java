@@ -54,7 +54,7 @@ public class PeerProcess {
 	Logger logger;
 	public static boolean[][] sentRequestMessageByPiece;
 	public boolean fileComplete;
-	static int lastPeerID;
+	//static int lastPeerID;
 	public BlockingQueue<MessageWriter> blockingQueueMessages;
 	public BlockingQueue<String> blockingQueueLogging;
 	public HashMap<Peer, Socket> peerSocketMap;
@@ -164,7 +164,7 @@ public class PeerProcess {
 			/*** Initializes File Manager ***/
 			peerInfo.initializeFileManager(peerProcess, args[0]);
 
-			lastPeerID = peerInfo.getLastPeerID();
+			//lastPeerID = peerInfo.getLastPeerID();
 
 			peerInfo.establishConnection(peerProcess);
 
@@ -188,7 +188,7 @@ public class PeerProcess {
 
 			for (; !PeerProcess.this.exit;) {
 				peerCompleteFileReceived = 0;
-				if (!(PeerInfoConfigParser.getCurrentPeer().getPeerID() != lastPeerID && totalConnectedPeers < peerInfoVector.size())) {
+				if (!(PeerInfoConfigParser.getCurrentPeer().getPeerID() != PeerInfoConfigParser.getLastPeerID() && totalConnectedPeers < peerInfoVector.size())) {
 
 				} else {
 					Socket socket;
