@@ -28,7 +28,6 @@ import java.util.logging.Logger;
 public class PeerProcess {
 
 	Vector<Peer> peerInfoVector;
-	//static Peer currentPeer;
 	int noOfPeers;
 	boolean isFilePresent;
 	ServerSocket serverSocket;
@@ -47,14 +46,13 @@ public class PeerProcess {
 	BlockingQueue<MessageWriter> blockingQueueMessages;
 	BlockingQueue<String> blockingQueueLogging;
 	HashMap<Peer, Socket> peerSocketMap;
-	int[][] pieceMatrix;
+	//int[][] pieceMatrix;
 	public final Object inputSynchronize = new Object();
 	Future<?> prefNeighborTask;
 	Future<?> optimisticallyUnchokeNeighborTask;
 	Future<?> logManagerTask;
 	Future<?> messageQueueTask;
 	public volatile boolean exit = false;
-	//static int currentPeerNo = 0;
 
 	PeerProcess() {
 		sdf = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -145,7 +143,7 @@ public class PeerProcess {
 						}
 					});
 
-			peerProcess.pieceMatrix = CommonPropertiesParser.getPieceMatrix();
+			//peerProcess.pieceMatrix = CommonPropertiesParser.getPieceMatrix();
 
 			/*** Reads peerInfo.cfg file and initializes peerList ***/
 			peerInfo.initializePeerList(peerProcess, args[0]);
@@ -156,8 +154,6 @@ public class PeerProcess {
 			peerInfo.initializeFileManager(peerProcess, args[0]);
 
 			lastPeerID = peerInfo.getLastPeerID();
-			//currentPeer = peerInfo.getCurrentPeer();
-			//currentPeerNo = peerInfo.getCurrentPeerNo();
 
 			peerInfo.establishConnection(peerProcess);
 

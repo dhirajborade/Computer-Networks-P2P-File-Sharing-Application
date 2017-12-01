@@ -410,8 +410,8 @@ public class ConnectionManager implements Runnable {
 			byte[] piece = new byte[CommonPropertiesParser.getPieceSize() + 4];
 			System.arraycopy(message.getPayload(), 0, piece, 0, 4);
 			RandomAccessFile randAccessFile = new RandomAccessFile(new File(CommonPropertiesParser.getFileName()), "r");
-			randAccessFile.seek(peerProc.pieceMatrix[index][0]);
-			randAccessFile.readFully(piece, 4, peerProc.pieceMatrix[index][1]);
+			randAccessFile.seek(CommonPropertiesParser.getPieceMatrix()[index][0]);
+			randAccessFile.readFully(piece, 4, CommonPropertiesParser.getPieceMatrix()[index][1]);
 			randAccessFile.close();
 			Message mpiece = new Message(CommonPropertiesParser.getPieceSize() + 5, Byte.valueOf(Integer.toString(7)),
 					piece);
@@ -427,11 +427,11 @@ public class ConnectionManager implements Runnable {
 		byte[] tempIndex = new byte[4];
 		System.arraycopy(payload, 0, tempIndex, 0, 4);
 		int index = ByteBuffer.wrap(tempIndex).getInt();
-		byte[] piece = new byte[peerProc.pieceMatrix[index][1]];
-		System.arraycopy(payload, 4, piece, 0, peerProc.pieceMatrix[index][1]);
+		byte[] piece = new byte[CommonPropertiesParser.getPieceMatrix()[index][1]];
+		System.arraycopy(payload, 4, piece, 0, CommonPropertiesParser.getPieceMatrix()[index][1]);
 		RandomAccessFile randAccessFile = new RandomAccessFile(new File(CommonPropertiesParser.getFileName()), "rw");
-		randAccessFile.seek(peerProc.pieceMatrix[index][0]);
-		randAccessFile.write(piece, 0, peerProc.pieceMatrix[index][1]);
+		randAccessFile.seek(CommonPropertiesParser.getPieceMatrix()[index][0]);
+		randAccessFile.write(piece, 0, CommonPropertiesParser.getPieceMatrix()[index][1]);
 		randAccessFile.close();
 
 		int noOperation = 0;
