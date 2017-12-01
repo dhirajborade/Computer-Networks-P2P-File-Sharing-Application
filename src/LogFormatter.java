@@ -11,9 +11,8 @@ public class LogFormatter extends SimpleFormatter {
 
 	public String format(LogRecord record) {
 		StringBuilder builder = new StringBuilder();
-		builder.append("[").append(dateFormat.format(new Date(record.getMillis()))).append("]: ");
-		builder.append(record.getMessage());
-		builder.append(System.getProperty("line.separator"));
+		builder.append("[").append(dateFormat.format(new Date(record.getMillis()))).append("]: ")
+				.append(record.getMessage()).append(System.getProperty("line.separator"));
 		System.out.println("Record Message:" + builder);
 		return builder.toString();
 	}
