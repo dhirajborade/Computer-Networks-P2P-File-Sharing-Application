@@ -5,25 +5,66 @@ import java.nio.ByteBuffer;
 
 public class MessageReader {
 
-	Socket socket;
-	PeerProcess peerProcess;
+	private Socket socket;
+	private PeerProcess peerProc;
 	private boolean isHandshakeDone = false;
 
-	public MessageReader(Socket socket, PeerProcess p) throws IOException {
-		// super(in);
+	public MessageReader(Socket socket, PeerProcess peerProc) throws IOException {
+		this.setSocket(socket);
+		this.setPeerProc(peerProc);
+	}
+
+	/**
+	 * @return the socket
+	 */
+	public Socket getSocket() {
+		return socket;
+	}
+
+	/**
+	 * @param socket the socket to set
+	 */
+	public void setSocket(Socket socket) {
 		this.socket = socket;
-		this.peerProcess = p;
+	}
+
+	/**
+	 * @return the peerProcess
+	 */
+	public PeerProcess getPeerProc() {
+		return peerProc;
+	}
+
+	/**
+	 * @param peerProc the peerProcess to set
+	 */
+	public void setPeerProc(PeerProcess peerProc) {
+		this.peerProc = peerProc;
+	}
+
+	/**
+	 * @return the isHandshakeDone
+	 */
+	public boolean isHandshakeDone() {
+		return isHandshakeDone;
+	}
+
+	/**
+	 * @param isHandshakeDone the isHandshakeDone to set
+	 */
+	public void setHandshakeDone(boolean isHandshakeDone) {
+		this.isHandshakeDone = isHandshakeDone;
 	}
 
 	public Object readObject() throws Exception {
-		InputStream inputStream = socket.getInputStream();
-		if (isHandshakeDone) {
-			while (!peerProcess.exit && inputStream.available() < 4) {
+		InputStream inputStream = this.getSocket().getInputStream();
+		if (this.isHandshakeDone()) {
+			for (;(!this.getPeerProc().exit && inputStream.available() < 4);) {
 			}
 			byte[] lengthBytes = new byte[4];
 			inputStream.read(lengthBytes, 0, 4);
 			int length = ByteBuffer.wrap(lengthBytes).getInt();
-			while (inputStream.available() < length) {
+			for (;inputStream.available() < length;) {
 			}
 			byte[] typeBuffer = new byte[1];
 			try {
@@ -34,21 +75,22 @@ public class MessageReader {
 			}
 			byte type = typeBuffer[0];
 			byte[] payload = null;
-			if (length > 1) {
+			if (!(length > 1)) {
+
+			} else {
 				payload = new byte[length - 1];
 				int recievedBytes = 0;
-				while (recievedBytes < (length - 1)) {
+				for (;recievedBytes < (length - 1);) {
 					try {
-						recievedBytes += inputStream.read(payload, recievedBytes, length - 1);
+						recievedBytes = recievedBytes + inputStream.read(payload, recievedBytes, length - 1);
 					} catch (IOException e) {
 						e.printStackTrace();
 						throw e;
 					}
 				}
 			}
-			System.out.println("available after reading payload:" + inputStream.available());
-			Message m = new Message(length, type, payload);
-			return m;
+			System.out.println("Available after reading Payload:" + inputStream.available());
+			return new Message(length, type, payload);
 		} else {
 			byte[] header = new byte[18];
 			try {
@@ -71,9 +113,8 @@ public class MessageReader {
 				e.printStackTrace();
 				throw e;
 			}
-			HandShake h = new HandShake(ByteBuffer.wrap(peerId).getInt());
-			isHandshakeDone = true;
-			return h;
+			this.setHandshakeDone(true);
+			return new HandShake(ByteBuffer.wrap(peerId).getInt());
 		}
 
 	}
