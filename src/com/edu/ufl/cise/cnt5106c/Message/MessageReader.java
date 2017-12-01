@@ -70,7 +70,7 @@ public class MessageReader {
 	public Object readObject() throws Exception {
 		InputStream inputStream = this.getSocket().getInputStream();
 		if (this.isHandshakeDone()) {
-			for (; (!this.getPeerProc().exit && inputStream.available() < 4);) {
+			for (; (!this.getPeerProc().isExit() && inputStream.available() < 4);) {
 			}
 			byte[] lengthBytes = new byte[4];
 			inputStream.read(lengthBytes, 0, 4);
