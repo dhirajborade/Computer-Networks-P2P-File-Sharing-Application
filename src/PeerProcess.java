@@ -10,13 +10,12 @@ import java.net.Socket;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.PriorityQueue;
+import java.util.Vector;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,7 +27,7 @@ import java.util.logging.Logger;
 
 public class PeerProcess {
 
-	List<Peer> peerInfoVector;
+	Vector<Peer> peerInfoVector;
 	static Peer currentPeer;
 	int noOfPeerHS;
 	int noOfPeers;
@@ -128,7 +127,7 @@ public class PeerProcess {
 			e.printStackTrace();
 		}
 		PeerProcess peerProcess = new PeerProcess();
-		peerProcess.peerInfoVector = new ArrayList<Peer>();
+		peerProcess.peerInfoVector = new Vector<Peer>();
 
 		try {
 
@@ -182,7 +181,7 @@ public class PeerProcess {
 			serverSocket = new ServerSocket(portNo);
 			int totalConnectedPeers = 0;
 
-			for (;!PeerProcess.this.exit;) {
+			for (; !PeerProcess.this.exit;) {
 				peerCompleteFileReceived = 0;
 				if (!(currentPeer.getPeerID() != lastPeerID && totalConnectedPeers < peerInfoVector.size())) {
 
